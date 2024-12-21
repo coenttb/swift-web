@@ -1,5 +1,5 @@
 {
-  "originHash" : "b8e108730fa5f80226469107d4274a3968918d2818c5c765835dee131ac321d2",
+  "originHash" : "5100ac830435e29ee79916289585adf988a2f2d2434b457840d20dd8f546adc3",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -170,6 +170,15 @@
       "state" : {
         "branch" : "main",
         "revision" : "1d6fa6441c9cfd56b9ec55fc7c7c76154f162d94"
+      }
+    },
+    {
+      "identity" : "swift-date",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/coenttb/swift-date",
+      "state" : {
+        "branch" : "main",
+        "revision" : "b13f34f8475e2cbece64a840bb03f65fa6ef681f"
       }
     },
     {

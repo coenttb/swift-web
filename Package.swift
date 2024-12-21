@@ -28,6 +28,7 @@ extension Target.Dependency {
     static var tagged: Self { .product(name: "Tagged", package: "swift-tagged") }
     static var urlRouting: Self { .product(name: "URLRouting", package: "swift-url-routing") }
     static var pointfreeWeb: Self { .product(name: "PointfreeWeb", package: "pointfree-web") }
+    static var swiftDate: Self { .product(name: "Date", package: "swift-date") }
     
 }
 
@@ -35,6 +36,7 @@ extension [Package.Dependency] {
     static var `default`: Self {
         [
             .package(url: "https://github.com/coenttb/swift-html", branch: "main"),
+            .package(url: "https://github.com/coenttb/swift-date", branch: "main"),
             .package(url: "https://github.com/coenttb/pointfree-web", branch: "main"),
             .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.1.5"),
             .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0"),
@@ -90,6 +92,7 @@ let package = Package(
         .target(
             name: .swiftWeb,
             dependencies: [
+                .swiftDate,
                 .pointfreeWeb,
                 .swiftHtml,
                 .favicon,
