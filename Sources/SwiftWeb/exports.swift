@@ -24,7 +24,6 @@
 @_exported import Dependencies
 @_exported import Either
 @_exported import Logging
-@_exported import MacroCodableKit
 @_exported import MemberwiseInit
 @_exported import PostgresKit
 @_exported import HTML

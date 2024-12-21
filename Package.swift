@@ -22,8 +22,6 @@ extension Target.Dependency {
     static var dependenciesMacros: Self { .product(name: "DependenciesMacros", package: "swift-dependencies") }
     static var either: Self { .product(name: "Either", package: "swift-prelude") }
     static var logging: Self { .product(name: "Logging", package: "swift-log") }
-    static var macroCodableKit: Self { .product(name: "MacroCodableKit", package: "macro-codable-kit") }
-    static var memberwiseInit: Self { .product(name: "MemberwiseInit", package: "swift-memberwise-init-macro") }
     static var postgresKit: Self { .product(name: "PostgresKit", package: "postgres-kit") }
     static var optics: Self { .product(name: "Optics", package: "swift-prelude") }
     static var swiftHtml: Self { .product(name: "HTML", package: "swift-html") }
@@ -40,8 +38,6 @@ extension [Package.Dependency] {
         [
             .package(url: "https://github.com/coenttb/swift-html", branch: "main"),
             .package(url: "https://github.com/coenttb/pointfree-web", branch: "main"),
-            .package(url: "https://github.com/gohanlon/swift-memberwise-init-macro", from: "0.3.0"),
-            .package(url: "https://github.com/mikhailmaslo/macro-codable-kit.git", from: "0.3.0"),
             .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.1.5"),
             .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0"),
             .package(url: "https://github.com/pointfreeco/swift-prelude.git", branch: "main"),
@@ -92,7 +88,6 @@ let package = Package(
         .target(
             name: .sitemap,
             dependencies: [
-                .memberwiseInit
             ]
         ),
         .target(
