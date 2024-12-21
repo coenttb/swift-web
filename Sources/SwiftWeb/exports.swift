@@ -22,7 +22,6 @@
 
 @_exported import AsyncHTTPClient
 @_exported import Dependencies
-@_exported import DependenciesMacros
 @_exported import Either
 @_exported import Logging
 @_exported import MacroCodableKit
