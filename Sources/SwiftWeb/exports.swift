@@ -7,7 +7,6 @@
 
 @_exported import EmailAddress
 
-
 @_exported import AppSecret
 @_exported import DatabaseHelpers
 @_exported import DecodableRequest
