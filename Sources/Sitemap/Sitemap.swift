@@ -88,7 +88,7 @@ extension SiteMap.URL {
 }
 
 extension SiteMap.URL {
-    public enum ChangeFrequency: String, Sendable {
+    public enum ChangeFrequency: String, Codable, Hashable, Sendable {
         case always = "always"
         case hourly = "hourly"
         case daily = "daily"

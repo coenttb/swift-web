@@ -9,7 +9,7 @@ import Foundation
 import URLRouting
 
 extension FaviconRouter {
-    public enum Route: String, Codable, Hashable {
+    public enum Route: String, Codable, Hashable, Sendable {
         case svg = "favicon.svg"
         case png = "favicon.png"
         case apple_touch_icon_png = "apple-touch-icon.png"
