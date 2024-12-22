@@ -4,6 +4,7 @@ import Foundation
 import PackageDescription
 
 extension String {
+    static let emailAddress: Self = "EmailAddress"
     static let favicon: Self = "Favicon"
     static let sitemap: Self = "Sitemap"
     static let swiftWeb: Self = "SwiftWeb"
@@ -11,12 +12,25 @@ extension String {
 }
 
 extension Target.Dependency {
+    static var emailAddress: Self { .target(name: .emailAddress) }
     static var favicon: Self { .target(name: .favicon) }
     static var sitemap: Self { .target(name: .sitemap) }
     static var swiftWeb: Self { .target(name: .swiftWeb) }
     static var urlFormCoding: Self { .target(name: .urlFormCoding) }
 }
 
+extension Target.Dependency {
+    static var appSecret: Self { .product(name: "AppSecret", package: "pointfree-web") }
+    static var database: Self { .product(name: "DatabaseHelpers", package: "pointfree-web") }
+    static var decodableRequest: Self { .product(name: "DecodableRequest", package: "pointfree-web") }
+//    static var emailaddress: Self { .product(name: "EmailAddress", package: "pointfree-web") }
+    static var foundationPrelude: Self { .product(name: "FoundationPrelude", package: "pointfree-web") }
+    static var httpPipeline: Self { .product(name: "HttpPipeline", package: "pointfree-web") }
+    static var nioDependencies: Self { .product(name: "NIODependencies", package: "pointfree-web") }
+    static var urlFormEncoding: Self { .product(name: "UrlFormEncoding", package: "pointfree-web") }
+    static var mediaType: Self { .product(name: "MediaType", package: "pointfree-web") }
+    static var loggingDependencies: Self { .product(name: "LoggingDependencies", package: "pointfree-web") }
+}
 extension Target.Dependency {
     static var dependencies: Self { .product(name: "Dependencies", package: "swift-dependencies") }
     static var either: Self { .product(name: "Either", package: "swift-prelude") }
@@ -27,9 +41,8 @@ extension Target.Dependency {
     static var prelude: Self { .product(name: "Prelude", package: "swift-prelude") }
     static var tagged: Self { .product(name: "Tagged", package: "swift-tagged") }
     static var urlRouting: Self { .product(name: "URLRouting", package: "swift-url-routing") }
-    static var pointfreeWeb: Self { .product(name: "PointfreeWeb", package: "pointfree-web") }
     static var swiftDate: Self { .product(name: "Date", package: "swift-date") }
-    
+//    static var pointfreeWeb: Self { .product(name: "PointfreeWeb", package: "pointfree-web") }
 }
 
 extension [Package.Dependency] {
@@ -63,12 +76,18 @@ let package = Package(
                 .urlFormCoding,
             ]
         ),
+        .library(name: .emailAddress, targets: [.emailAddress]),
         .library(name: .favicon, targets: [.favicon]),
         .library(name: .sitemap, targets: [.sitemap]),
         .library(name: .urlFormCoding, targets: [.urlFormCoding]),
     ],
     dependencies: .default,
     targets: [
+        .target(
+            name: .emailAddress,
+            dependencies: [
+            ]
+        ),
         .target(
             name: .favicon,
             dependencies: [
@@ -80,8 +99,8 @@ let package = Package(
             name: .urlFormCoding,
             dependencies: [
                 .dependencies,
-                .pointfreeWeb,
-                .urlRouting
+                .urlRouting,
+                .urlFormEncoding
             ]
         ),
         .target(
@@ -93,11 +112,20 @@ let package = Package(
             name: .swiftWeb,
             dependencies: [
                 .swiftDate,
-                .pointfreeWeb,
                 .swiftHtml,
+                .emailAddress,
                 .favicon,
                 .sitemap,
                 .urlFormCoding,
+                .appSecret,
+                .database,
+                .decodableRequest,
+                .foundationPrelude,
+                .httpPipeline,
+                .nioDependencies,
+                .urlFormEncoding,
+                .mediaType,
+                .loggingDependencies,
             ]
         )
     ],

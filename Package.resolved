@@ -1,5 +1,5 @@
 {
-  "originHash" : "5100ac830435e29ee79916289585adf988a2f2d2434b457840d20dd8f546adc3",
+  "originHash" : "e18a8246342b10e317ca7cfae09c4ceb4b216ad6e356c825556783e38583b6ae",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -52,7 +52,7 @@
       "location" : "https://github.com/coenttb/pointfree-web",
       "state" : {
         "branch" : "main",
-        "revision" : "6fdb3612b3db916e87c04f27628448f56c9f4677"
+        "revision" : "5994fff00e459c2bc4277cfa57ed7a184b3c51ad"
       }
     },
     {
