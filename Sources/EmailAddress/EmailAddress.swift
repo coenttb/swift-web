@@ -1,7 +1,7 @@
 import Foundation
 import RegexBuilder
 
-public struct EmailAddress: Codable, Hashable, Sendable {
+public struct EmailAddress: Hashable, Sendable, Codable {
     /// The display name portion of the email address (optional)
     public let name: String?
     
@@ -58,6 +58,20 @@ public struct EmailAddress: Codable, Hashable, Sendable {
     /// The complete email address without display name
     public var address: String {
         "\(localPart)@\(domain)"
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        guard let email = EmailAddress(rawValue: rawValue) else {
+            throw ValidationError.invalidFormat
+        }
+        self = email
     }
 }
 
