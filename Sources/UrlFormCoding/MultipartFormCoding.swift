@@ -73,3 +73,13 @@ private extension Data {
         }
     }
 }
+
+extension Conversion {
+    @inlinable
+    public static func multipart<Value>(
+        _ type: Value.Type,
+        decoder: UrlFormDecoder = .init()
+    ) -> Self where Self == MultipartFormCoding<Value> {
+        .init(type, decoder: decoder)
+    }
+}
