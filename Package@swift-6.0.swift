@@ -9,6 +9,7 @@ extension String {
     static let sitemap: Self = "Sitemap"
     static let swiftWeb: Self = "SwiftWeb"
     static let urlFormCoding: Self = "UrlFormCoding"
+    static let rfc2822: Self = "RFC2822"
 }
 
 extension Target.Dependency {
@@ -17,13 +18,13 @@ extension Target.Dependency {
     static var sitemap: Self { .target(name: .sitemap) }
     static var swiftWeb: Self { .target(name: .swiftWeb) }
     static var urlFormCoding: Self { .target(name: .urlFormCoding) }
+    static var rfc2822: Self { .target(name: .rfc2822) }
 }
 
 extension Target.Dependency {
     static var appSecret: Self { .product(name: "AppSecret", package: "pointfree-web") }
     static var database: Self { .product(name: "DatabaseHelpers", package: "pointfree-web") }
     static var decodableRequest: Self { .product(name: "DecodableRequest", package: "pointfree-web") }
-//    static var emailAddress: Self { .product(name: "EmailAddress", package: "pointfree-web") }
     static var foundationPrelude: Self { .product(name: "FoundationPrelude", package: "pointfree-web") }
     static var httpPipeline: Self { .product(name: "HttpPipeline", package: "pointfree-web") }
     static var nioDependencies: Self { .product(name: "NIODependencies", package: "pointfree-web") }
@@ -40,9 +41,9 @@ extension Target.Dependency {
     static var swiftHtml: Self { .product(name: "HTML", package: "swift-html") }
     static var prelude: Self { .product(name: "Prelude", package: "swift-prelude") }
     static var tagged: Self { .product(name: "Tagged", package: "swift-tagged") }
+    static var parsing: Self { .product(name: "Parsing", package: "swift-parsing") }
     static var urlRouting: Self { .product(name: "URLRouting", package: "swift-url-routing") }
     static var swiftDate: Self { .product(name: "Date", package: "swift-date") }
-//    static var pointfreeWeb: Self { .product(name: "PointfreeWeb", package: "pointfree-web") }
 }
 
 extension [Package.Dependency] {
@@ -55,6 +56,7 @@ extension [Package.Dependency] {
             .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0"),
             .package(url: "https://github.com/pointfreeco/swift-prelude.git", branch: "main"),
             .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.6.0"),
+            .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.13.0"),
             .package(url: "https://github.com/vapor/postgres-kit", from: "2.12.0"),
         ]
     }
@@ -74,13 +76,13 @@ let package = Package(
                 .favicon,
                 .sitemap,
                 .urlFormCoding,
-                .emailAddress,
             ]
         ),
         .library(name: .emailAddress, targets: [.emailAddress]),
         .library(name: .favicon, targets: [.favicon]),
         .library(name: .sitemap, targets: [.sitemap]),
         .library(name: .urlFormCoding, targets: [.urlFormCoding]),
+        .library(name: .rfc2822, targets: [.rfc2822]),
     ],
     dependencies: .default,
     targets: [
@@ -97,11 +99,24 @@ let package = Package(
             ]
         ),
         .target(
+            name: .rfc2822,
+            dependencies: [
+                .parsing,
+                .urlRouting,
+            ]
+        ),
+        .testTarget(
+            name: .rfc2822.tests,
+            dependencies: [
+                .rfc2822
+            ]
+        ),
+        .target(
             name: .urlFormCoding,
             dependencies: [
                 .dependencies,
-                .urlFormEncoding,
-                .urlRouting
+                .urlRouting,
+                .urlFormEncoding
             ]
         ),
         .target(
@@ -128,13 +143,13 @@ let package = Package(
                 .mediaType,
                 .loggingDependencies,
             ]
-        ),
-        .testTarget(
-            name: .emailAddress + " Tests",
-            dependencies: [
-                .emailAddress
-            ]
         )
     ],
     swiftLanguageModes: [.v6]
 )
+
+extension String {
+    var tests: Self {
+        self + " Tests"
+    }
+}
