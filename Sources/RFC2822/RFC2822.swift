@@ -18,6 +18,9 @@ extension Date {
 
 extension Date.RFC2822 {
     public struct Parser: ParserPrinter {
+        
+        public init(){}
+        
         public var body: some ParserPrinter<Substring, Date> {
             Parse(.string).map(Date.RFC2822.Conversion())
         }
