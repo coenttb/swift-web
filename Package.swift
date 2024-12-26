@@ -76,6 +76,7 @@ let package = Package(
                 .favicon,
                 .sitemap,
                 .urlFormCoding,
+                .rfc2822,
             ]
         ),
         .library(name: .emailAddress, targets: [.emailAddress]),

@@ -72,6 +72,7 @@ let package = Package(
         .library(
             name: .swiftWeb,
             targets: [
+                .rfc2822,
                 .swiftWeb,
                 .favicon,
                 .sitemap,
