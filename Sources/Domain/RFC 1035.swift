@@ -7,50 +7,54 @@
 
 import Foundation
 
-/// RFC 1035 compliant domain name
-public struct RFC1035: Hashable, Sendable {
-    /// The labels that make up the domain name, from least significant to most significant
-    private let labels: [Label]
+extension Domain {
     
-    /// Initialize with an array of string labels, validating RFC 1035 rules
-    public init(labels: [String]) throws {
-        guard !labels.isEmpty else {
-            throw ValidationError.empty
+    /// RFC 1035 compliant domain name
+    public struct RFC1035: Hashable, Sendable {
+        /// The labels that make up the domain name, from least significant to most significant
+        private let labels: [Label]
+        
+        /// Initialize with an array of string labels, validating RFC 1035 rules
+        public init(labels: [String]) throws {
+            guard !labels.isEmpty else {
+                throw ValidationError.empty
+            }
+            
+            guard labels.count <= Limits.maxLabels else {
+                throw ValidationError.tooManyLabels
+            }
+            
+            // Validate and convert each label
+            self.labels = try labels.map(Label.init)
+            
+            // Check total length including dots
+            let totalLength = self.name.count
+            guard totalLength <= Limits.maxLength else {
+                throw ValidationError.tooLong(totalLength)
+            }
         }
         
-        guard labels.count <= Limits.maxLabels else {
-            throw ValidationError.tooManyLabels
+        /// Initialize from a string representation (e.g. "example.com")
+        public init(_ string: String) throws {
+            try self.init(labels: string.split(separator: ".", omittingEmptySubsequences: true).map(String.init))
         }
-        
-        // Validate and convert each label
-        self.labels = try labels.map(Label.init)
-        
-        // Check total length including dots
-        let totalLength = self.name.count
-        guard totalLength <= Limits.maxLength else {
-            throw ValidationError.tooLong(totalLength)
-        }
-    }
-    
-    /// Initialize from a string representation (e.g. "example.com")
-    public init(_ string: String) throws {
-        try self.init(labels: string.split(separator: ".", omittingEmptySubsequences: true).map(String.init))
     }
 }
 
-extension RFC1035 {
+
+extension Domain.RFC1035 {
     /// A type-safe domain label that enforces RFC 1035 rules
     public struct Label: Hashable, Sendable {
         private let value: String
         
         /// Initialize a label, validating RFC 1035 rules
         internal init(_ string: String) throws {
-            guard !string.isEmpty, string.count <= RFC1035.Limits.maxLabelLength else {
-                throw RFC1035.ValidationError.invalidLabel(string)
+            guard !string.isEmpty, string.count <= Domain.RFC1035.Limits.maxLabelLength else {
+                throw Domain.RFC1035.ValidationError.invalidLabel(string)
             }
             
-            guard (try? RFC1035.labelRegex.wholeMatch(in: string)) != nil else {
-                throw RFC1035.ValidationError.invalidLabel(string)
+            guard (try? Domain.RFC1035.labelRegex.wholeMatch(in: string)) != nil else {
+                throw Domain.RFC1035.ValidationError.invalidLabel(string)
             }
             
             self.value = string
@@ -60,52 +64,52 @@ extension RFC1035 {
     }
 }
 
-extension RFC1035 {
+extension Domain.RFC1035 {
     /// The complete domain name as a string
     public var name: String {
         labels.map(\.stringValue).joined(separator: ".")
     }
     
     /// The top-level domain (rightmost label)
-    public var tld: RFC1035.Label? {
+    public var tld: Domain.RFC1035.Label? {
         labels.last
     }
     
     /// The second-level domain (second from right)
-    public var sld: RFC1035.Label? {
+    public var sld: Domain.RFC1035.Label? {
         labels.dropLast().last
     }
     
     /// Returns true if this is a subdomain of the given domain
-    public func isSubdomain(of parent: RFC1035) -> Bool {
+    public func isSubdomain(of parent: Domain.RFC1035) -> Bool {
         guard labels.count > parent.labels.count else { return false }
         return labels.suffix(parent.labels.count) == parent.labels
     }
     
     /// Creates a subdomain by prepending new labels
-    public func addingSubdomain(_ components: [String]) throws -> RFC1035 {
-        try RFC1035(labels: components + labels.map(\.stringValue))
+    public func addingSubdomain(_ components: [String]) throws -> Domain.RFC1035 {
+        try Domain.RFC1035(labels: components + labels.map(\.stringValue))
     }
     
-    public func addingSubdomain(_ components: String...) throws -> RFC1035 {
+    public func addingSubdomain(_ components: String...) throws -> Domain.RFC1035 {
         try self.addingSubdomain(components)
     }
     
     /// Returns the parent domain by removing the leftmost label
-    public func parent() throws -> RFC1035? {
+    public func parent() throws -> Domain.RFC1035? {
         guard labels.count > 1 else { return nil }
-        return try RFC1035(labels: labels.dropFirst().map(\.stringValue))
+        return try Domain.RFC1035(labels: labels.dropFirst().map(\.stringValue))
     }
     
     /// Returns the root domain (tld + sld)
-    public func root() throws -> RFC1035? {
+    public func root() throws -> Domain.RFC1035? {
         guard labels.count >= 2 else { return nil }
-        return try RFC1035(labels: labels.suffix(2).map(\.stringValue))
+        return try Domain.RFC1035(labels: labels.suffix(2).map(\.stringValue))
     }
 }
 
 // MARK: - Constants and Validation
-extension RFC1035 {
+extension Domain.RFC1035 {
     internal enum Limits {
         static let maxLength = 255
         static let maxLabels = 127
@@ -120,7 +124,7 @@ extension RFC1035 {
 }
 
 // MARK: - Errors
-extension RFC1035 {
+extension Domain.RFC1035 {
     public enum ValidationError: Error, LocalizedError, Equatable {
         case empty
         case tooLong(_ length: Int)
@@ -143,24 +147,24 @@ extension RFC1035 {
 }
 
 // MARK: - Convenience Initializers
-extension RFC1035 {
+extension Domain.RFC1035 {
     /// Creates a domain from root level components
-    public static func root(_ sld: String, _ tld: String) throws -> RFC1035 {
-        try RFC1035(labels: [sld, tld])
+    public static func root(_ sld: String, _ tld: String) throws -> Domain.RFC1035 {
+        try Domain.RFC1035(labels: [sld, tld])
     }
     
     /// Creates a subdomain with components in most-to-least significant order
-    public static func subdomain(_ components: String...) throws -> RFC1035 {
-        try RFC1035(labels: components.reversed())
+    public static func subdomain(_ components: String...) throws -> Domain.RFC1035 {
+        try Domain.RFC1035(labels: components.reversed())
     }
 }
 
 // MARK: - Protocol Conformances
-extension RFC1035: CustomStringConvertible {
+extension Domain.RFC1035: CustomStringConvertible {
     public var description: String { name }
 }
 
-extension RFC1035: Codable {
+extension Domain.RFC1035: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(name)
@@ -173,7 +177,7 @@ extension RFC1035: Codable {
     }
 }
 
-extension RFC1035: RawRepresentable {
+extension Domain.RFC1035: RawRepresentable {
     public var rawValue: String { name }
     public init?(rawValue: String) { try? self.init(rawValue) }
 }

@@ -98,6 +98,13 @@ let package = Package(
         .target(
             name: .emailAddress,
             dependencies: [
+                .domain,
+            ]
+        ),
+        .testTarget(
+            name: .emailAddress.tests,
+            dependencies: [
+                .emailAddress
             ]
         ),
         .target(

@@ -1,163 +1,211 @@
+//
+//  File.swift
+//  swift-web
+//
+//  Created by Coen ten Thije Boonkkamp on 28/12/2024.
+//
+
 import Foundation
-import RegexBuilder
+import Domain
 
-public struct EmailAddress: Hashable, Sendable, Codable {
-    /// The display name portion of the email address (optional)
-    public let name: String?
+/// An email address that can be represented according to different RFC standards
+public struct EmailAddress: Hashable, Sendable {
+    let rfc5321: RFC5321?
+    let rfc5322: RFC5322?
+    let rfc6531: RFC6531
     
-    /// The local part of the email address (before @)
-    public let localPart: String
+    /// The display name associated with this email address, if any
+    public let displayName: String?
     
-    /// The domain part of the email address (after @)
-    public let domain: String
+    public var name: String? { displayName }
+    public var address: String { self.rfc6531.addressValue }
     
-    /// Initialize with separate components
-    public init(name: String? = nil, localPart: String, domain: String) throws {
-        guard Self.isValidLocalPart(localPart) else {
-            throw ValidationError.invalidLocalPart
-        }
-        guard Self.isValidDomain(domain) else {
-            throw ValidationError.invalidDomain
+    /// Initialize with an email address string
+    public init(
+        displayName: String? = nil,
+        _ string: String
+    ) throws {
+        // RFC 6531 is required as it's our most permissive format
+        let rfc6531Address = try RFC6531(string)
+        
+        // If a display name was provided, update the RFC6531 instance
+        if let displayName = displayName {
+            self.rfc6531 = RFC6531(
+                displayName: displayName,
+                localPart: rfc6531Address.localPart,
+                domain: rfc6531Address.domain
+            )
+        } else {
+            self.rfc6531 = rfc6531Address
         }
         
-        self.name = name
-        self.localPart = localPart
-        self.domain = domain
+        // Try to initialize stricter formats if possible
+        if rfc6531.isASCII {
+            self.rfc5322 = try? RFC5322(
+                displayName: displayName ?? rfc6531.displayName,
+                localPart: .init(rfc6531.localPart.stringValue),
+                domain: rfc6531.domain
+            )
+            
+            self.rfc5321 = try? RFC5321(
+                displayName: displayName ?? rfc6531.displayName,
+                localPart: .init(rfc6531.localPart.stringValue),
+                domain: .init(domain: rfc6531.domain)
+            )
+        } else {
+            self.rfc5322 = nil
+            self.rfc5321 = nil
+        }
+        
+        self.displayName = displayName ?? rfc6531.displayName
     }
     
-    /// Initialize from a string in format: "Display Name <local@domain>" or "local@domain"
-    public init(_ string: String) throws {
-        // First try name-addr format: "Name <email@domain>"
-        if let match = try? Self.nameAddrRegex.wholeMatch(in: string) {
-            let displayName: String?
-            if let quotedName = match.output.1 {
-                displayName = Self.unquoteString(String(quotedName))
-            } else if let plainName = match.output.2 {
-                displayName = String(plainName).trimmingCharacters(in: .whitespaces)
-            } else {
-                displayName = nil
+    /// Initialize with components
+    public init(displayName: String? = nil, localPart: String, domain: String) throws {
+        try self.init(
+            displayName: displayName,
+            "\(localPart)@\(domain)"
+        )
+    }
+    
+    /// Initialize from RFC5321
+    public init(rfc5321: RFC5321) throws {
+        self.rfc5321 = rfc5321
+        self.rfc5322 = try? RFC5322(
+            displayName: rfc5321.displayName,
+            localPart: .init(rfc5321.localPart.stringValue),
+            domain: .init(rfc5321.domain.name)
+        )
+        self.rfc6531 = try {
+            guard let email = try? RFC6531(
+                displayName: rfc5321.displayName,
+                localPart: .init(rfc5321.localPart.stringValue),
+                domain: .init(rfc5321.domain.name)
+            ) else {
+                throw EmailAddressError.conversionFailure
             }
-            try self.init(
-                name: displayName,
-                localPart: String(match.output.3),
-                domain: String(match.output.4)
-            )
-        }
-        // Then try addr-spec format: "email@domain"
-        else if let match = try? Self.addrSpecRegex.wholeMatch(in: string) {
-            try self.init(
-                localPart: String(match.output.1),
-                domain: String(match.output.2)
-            )
-        }
-        else {
-            throw ValidationError.invalidFormat
-        }
+            return email
+        }()
+        self.displayName = rfc5321.displayName
     }
     
-    /// The complete email address without display name
-    public var address: String {
-        "\(localPart)@\(domain)"
+    /// Initialize from RFC5322
+    public init(rfc5322: RFC5322) throws {
+        self.rfc5321 = try? rfc5322.toRFC5321()
+        self.rfc5322 = rfc5322
+        self.rfc6531 = try {
+            guard let email = try? RFC6531(
+                displayName: rfc5322.displayName,
+                localPart: .init(rfc5322.localPart.stringValue),
+                domain: rfc5322.domain
+            ) else {
+                throw EmailAddressError.conversionFailure
+            }
+            return email
+        }()
+        self.displayName = rfc5322.displayName
     }
     
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(rawValue)
-    }
-    
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let rawValue = try container.decode(String.self)
-        guard let email = EmailAddress(rawValue: rawValue) else {
-            throw ValidationError.invalidFormat
-        }
-        self = email
+    /// Initialize from RFC6531
+    public init(rfc6531: RFC6531) {
+        self.rfc5321 = try? rfc6531.toRFC5321()
+        self.rfc5322 = try? rfc6531.toRFC5322()
+        self.rfc6531 = rfc6531
+        self.displayName = rfc6531.displayName
     }
 }
 
-// MARK: - Validation
+// MARK: - Properties
 extension EmailAddress {
-    /// Maximum lengths according to RFC 5321
-    private enum Limits {
-        static let maxLocalPartLength = 64
-        static let maxDomainLength = 255
-        static let maxLabelLength = 63
+    /// The email address string, using the most specific format available
+    public var stringValue: String {
+        rfc5321?.stringValue ?? rfc5322?.stringValue ?? rfc6531.stringValue
     }
     
-    private static func isValidLocalPart(_ localPart: String) -> Bool {
-        guard !localPart.isEmpty,
-              localPart.count <= Limits.maxLocalPartLength
-        else { return false }
-        
-        // If quoted, validate according to quoted-string rules
-        if localPart.hasPrefix("\"") && localPart.hasSuffix("\"") {
-            let quoted = String(localPart.dropFirst().dropLast())
-            return (try? quotedLocalPartRegex.wholeMatch(in: quoted)) != nil
+    /// The email address string without display name
+    public var addressValue: String {
+        rfc5321?.addressValue ?? rfc5322?.addressValue ?? rfc6531.addressValue
+    }
+    
+    /// The local part (before @)
+    public var localPart: String {
+        rfc5321?.localPart.stringValue ??
+        rfc5322?.localPart.stringValue ??
+        rfc6531.localPart.stringValue
+    }
+    
+    /// The domain part (after @)
+    public var domain: Domain {
+        if let domain = rfc5321?.domain {
+            return Domain(rfc5321: domain)
         }
-        
-        // Otherwise validate as dot-atom
-        return (try? dotAtomRegex.wholeMatch(in: localPart)) != nil
-    }
-    
-    private static func isValidDomain(_ domain: String) -> Bool {
-        guard !domain.isEmpty,
-              domain.count <= Limits.maxDomainLength,
-              !domain.hasPrefix("-"),
-              !domain.hasSuffix("-")
-        else { return false }
-        
-        // Match entire domain pattern
-        return (try? domainRegex.wholeMatch(in: domain)) != nil
-    }
-    
-    private static func unquoteString(_ str: String) -> String {
-        if str.hasPrefix("\"") && str.hasSuffix("\"") {
-            return String(str.dropFirst().dropLast())
-                .replacingOccurrences(of: "\\\"", with: "\"")
-                .replacingOccurrences(of: "\\\\", with: "\\")
+        if let domain = rfc5322?.domain {
+            return try! Domain(rfc1123: domain)
         }
-        return str
+        return try! Domain(rfc1123: rfc6531.domain)
+    }
+    
+    /// Returns true if this is an ASCII-only email address
+    public var isASCII: Bool {
+        rfc5321 != nil || rfc5322 != nil
+    }
+    
+    /// Returns true if this is an internationalized email address
+    public var isInternationalized: Bool {
+        !isASCII
+    }
+    
+    /// Returns true if this uses an IP address literal
+    public var hasIPLiteral: Bool {
+        rfc5321?.domain.isAddressLiteral ?? false
     }
 }
 
-
-// MARK: - Regular Expressions
+// MARK: - Email Operations
 extension EmailAddress {
-    // Dot-atom regex: series of atoms separated by dots
+    /// Returns a normalized version of the email address
+    /// - For ASCII addresses, uses the most restrictive format available (5321 > 5322 > 6531)
+    /// - For international addresses, uses RFC 6531
+    public func normalized() -> EmailAddress {
+        // Already normalized if we only have RFC 6531
+        guard isASCII else { return self }
+        
+        // Use most restrictive format available
+        if let rfc5321 = self.rfc5321 {
+            return try! EmailAddress(rfc5321: rfc5321)
+        }
+        if let rfc5322 = self.rfc5322 {
+            return try! EmailAddress(rfc5322: rfc5322)
+        }
+        return self
+    }
     
-    nonisolated(unsafe) private static let dotAtomRegex = /[a-zA-Z0-9!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+(?:\.[a-zA-Z0-9!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+)*/
-
-    // Quoted local part regex: allows spaces and special characters
-    nonisolated(unsafe) private static let quotedLocalPartRegex = /(?:[^"\\]|\\["\\])+/
-    
-    // Domain label regex: letters, digits, and hyphens (not at start/end)
-    nonisolated(unsafe) private static let domainLabelRegex = /(?:[^\"\\]|\\[\"\\])+/
-    
-    // Complete domain regex: series of labels separated by dots
-    nonisolated(unsafe) private static let domainRegex = /[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?)+/
-    
-    // Name-addr regex: "Name <local@domain>"
-    nonisolated(unsafe) private static let nameAddrRegex = /(?:(?:\"((?:[^\"\\]|\\[\"\\])+)\"|([^<]+))?\s*)?<([a-zA-Z0-9!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+(?:\.[a-zA-Z0-9!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+)*)@([a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?)+)>/
-    
-    // Addr-spec regex: "local@domain"
-    nonisolated(unsafe) private static let addrSpecRegex = /([a-zA-Z0-9!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+(?:\.[a-zA-Z0-9!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+)*)@([a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?)+)/
+    /// Returns true if this email address matches another under the same RFC
+    /// - Attempts to compare using the most restrictive common format
+    /// - Display names are not considered in the match
+    public func matches(_ other: EmailAddress) -> Bool {
+        if let myRFC5321 = rfc5321, let otherRFC5321 = other.rfc5321 {
+            return myRFC5321.addressValue.lowercased() == otherRFC5321.addressValue.lowercased()
+        }
+        if let myRFC5322 = rfc5322, let otherRFC5322 = other.rfc5322 {
+            return myRFC5322.addressValue.lowercased() == otherRFC5322.addressValue.lowercased()
+        }
+        return rfc6531.addressValue.lowercased() == other.rfc6531.addressValue.lowercased()
+    }
 }
 
 // MARK: - Errors
 extension EmailAddress {
-    public enum ValidationError: Error, LocalizedError {
-        case invalidFormat
-        case invalidLocalPart
-        case invalidDomain
+    public enum EmailAddressError: Error, Equatable, LocalizedError {
+        case conversionFailure
+        case invalidFormat(description: String)
         
         public var errorDescription: String? {
             switch self {
-            case .invalidFormat:
-                return "Invalid email format. Expected 'Name <local@domain>' or 'local@domain'"
-            case .invalidLocalPart:
-                return "Invalid local part (before @)"
-            case .invalidDomain:
-                return "Invalid domain (after @)"
+            case .conversionFailure:
+                return "Failed to convert between email address formats"
+            case .invalidFormat(let description):
+                return "Invalid email format: \(description)"
             }
         }
     }
@@ -165,34 +213,41 @@ extension EmailAddress {
 
 // MARK: - Protocol Conformances
 extension EmailAddress: CustomStringConvertible {
-    public var description: String {
-        if let name = name {
-            // Quote the name if it contains special characters
-            let needsQuoting = name.contains { !$0.isLetter && !$0.isNumber && $0 != " " }
-            let displayName = needsQuoting ? "\"\(name.replacingOccurrences(of: "\"", with: "\\\""))\"" : name
-            return "\(displayName) <\(address)>"
-        }
-        return address
+    public var description: String { stringValue }
+}
+
+extension EmailAddress: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case address
+        case displayName
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(addressValue, forKey: .address)
+        try container.encodeIfPresent(displayName, forKey: .displayName)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let address = try container.decode(String.self, forKey: .address)
+        let displayName = try container.decodeIfPresent(String.self, forKey: .displayName)
+        try self.init(
+            displayName: displayName,
+            address
+        )
     }
 }
 
 extension EmailAddress: RawRepresentable {
-    public var rawValue: String {
-        description
-    }
-    
-    public init?(rawValue: String) {
-        try? self.init(rawValue)
-    }
+    public var rawValue: String { stringValue }
+    public init?(rawValue: String) { try? self.init(rawValue) }
 }
 
-// MARK: - Convenience Initializers
-extension EmailAddress {
-    public static func unnamed(_ address: String) throws -> EmailAddress {
-        try EmailAddress(address)
-    }
-    
-    public static func named(_ name: String, _ address: String) throws -> EmailAddress {
-        try EmailAddress("\(name) <\(address)>")
+// MARK: - Convenience Extensions
+extension String {
+    /// Attempts to parse the string as an email address
+    public func asEmailAddress() throws -> EmailAddress {
+        try EmailAddress(self)
     }
 }

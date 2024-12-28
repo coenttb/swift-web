@@ -7,73 +7,75 @@
 
 import Foundation
 
-/// RFC 5321 compliant domain name, allowing both standard domains and address literals
-public struct RFC5321: Hashable, Sendable {
-    /// The type of domain this represents
-    private let storage: Storage
-    
-    /// Initialize with a standard domain name
-    public init(domain: RFC1123) {
-        self.storage = .standard(domain)
-    }
-    
-    /// Initialize from a string that could be either a domain name or address literal
-    public init(_ string: String) throws {
-        if string.hasPrefix("[") && string.hasSuffix("]") {
-            // Parse as address literal
-            let literal = String(string.dropFirst().dropLast())
-            try self.init(addressLiteral: literal)
-        } else {
-            // Parse as standard domain
-            try self.init(domain: RFC1123(string))
-        }
-    }
-    
-    /// Initialize with an IP address literal
-    public init(addressLiteral: String) throws {
-        // Validate and parse the address literal
-        guard !addressLiteral.isEmpty else {
-            throw ValidationError.emptyAddressLiteral
+extension Domain {
+    /// RFC 5321 compliant domain name, allowing both standard domains and address literals
+    public struct RFC5321: Hashable, Sendable {
+        /// The type of domain this represents
+        private let storage: Storage
+        
+        /// Initialize with a standard domain name
+        public init(domain: Domain.RFC1123) {
+            self.storage = .standard(domain)
         }
         
-        if addressLiteral.contains(":") {
-            // IPv6 address
-            try self.init(ipv6Literal: addressLiteral)
-        } else {
-            // IPv4 address
-            try self.init(ipv4Literal: addressLiteral)
+        /// Initialize from a string that could be either a domain name or address literal
+        public init(_ string: String) throws {
+            if string.hasPrefix("[") && string.hasSuffix("]") {
+                // Parse as address literal
+                let literal = String(string.dropFirst().dropLast())
+                try self.init(addressLiteral: literal)
+            } else {
+                // Parse as standard domain
+                try self.init(domain: RFC1123(string))
+            }
         }
-    }
-    
-    /// Initialize with an IPv4 address literal
-    public init(ipv4Literal: String) throws {
-        guard (try? Self.ipv4Regex.wholeMatch(in: ipv4Literal)) != nil else {
-            throw ValidationError.invalidIPv4(ipv4Literal)
+        
+        /// Initialize with an IP address literal
+        public init(addressLiteral: String) throws {
+            // Validate and parse the address literal
+            guard !addressLiteral.isEmpty else {
+                throw ValidationError.emptyAddressLiteral
+            }
+            
+            if addressLiteral.contains(":") {
+                // IPv6 address
+                try self.init(ipv6Literal: addressLiteral)
+            } else {
+                // IPv4 address
+                try self.init(ipv4Literal: addressLiteral)
+            }
         }
-        self.storage = .ipv4(ipv4Literal)
-    }
-    
-    /// Initialize with an IPv6 address literal
-    public init(ipv6Literal: String) throws {
-        guard (try? Self.ipv6Regex.wholeMatch(in: ipv6Literal)) != nil else {
-            throw ValidationError.invalidIPv6(ipv6Literal)
+        
+        /// Initialize with an IPv4 address literal
+        public init(ipv4Literal: String) throws {
+            guard (try? Self.ipv4Regex.wholeMatch(in: ipv4Literal)) != nil else {
+                throw ValidationError.invalidIPv4(ipv4Literal)
+            }
+            self.storage = .ipv4(ipv4Literal)
         }
-        self.storage = .ipv6(ipv6Literal)
+        
+        /// Initialize with an IPv6 address literal
+        public init(ipv6Literal: String) throws {
+            guard (try? Self.ipv6Regex.wholeMatch(in: ipv6Literal)) != nil else {
+                throw ValidationError.invalidIPv6(ipv6Literal)
+            }
+            self.storage = .ipv6(ipv6Literal)
+        }
     }
 }
 
 // MARK: - Storage
-extension RFC5321 {
+extension Domain.RFC5321 {
     /// The underlying storage type for the domain
     private enum Storage: Hashable {
-        case standard(RFC1123)
+        case standard(Domain.RFC1123)
         case ipv4(String)
         case ipv6(String)
     }
 }
 
 // MARK: - Properties
-extension RFC5321 {
+extension Domain.RFC5321 {
     /// Returns true if this is a standard domain name
     public var isStandardDomain: Bool {
         if case .standard = storage { return true }
@@ -87,7 +89,7 @@ extension RFC5321 {
     }
     
     /// Returns the underlying standard domain if this is a standard domain
-    public var standardDomain: RFC1123? {
+    public var standardDomain: Domain.RFC1123? {
         if case .standard(let domain) = storage { return domain }
         return nil
     }
@@ -116,7 +118,7 @@ extension RFC5321 {
 }
 
 // MARK: - Validation
-extension RFC5321 {
+extension Domain.RFC5321 {
     /// Simple IPv4 regex for basic format validation
     nonisolated(unsafe) internal static let ipv4Regex = /(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/
 
@@ -126,7 +128,7 @@ extension RFC5321 {
 }
 
 // MARK: - Errors
-extension RFC5321 {
+extension Domain.RFC5321 {
     public enum ValidationError: Error, Equatable, LocalizedError {
         case emptyAddressLiteral
         case invalidIPv4(_ address: String)
@@ -146,11 +148,11 @@ extension RFC5321 {
 }
 
 // MARK: - Protocol Conformances
-extension RFC5321: CustomStringConvertible {
+extension Domain.RFC5321: CustomStringConvertible {
     public var description: String { name }
 }
 
-extension RFC5321: Codable {
+extension Domain.RFC5321: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(name)
@@ -163,7 +165,7 @@ extension RFC5321: Codable {
     }
 }
 
-extension RFC5321: RawRepresentable {
+extension Domain.RFC5321: RawRepresentable {
     public var rawValue: String { name }
     public init?(rawValue: String) { try? self.init(rawValue) }
 }
