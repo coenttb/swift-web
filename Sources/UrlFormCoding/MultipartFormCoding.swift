@@ -19,28 +19,18 @@ public struct MultipartFormField {
         self.contentType = contentType
         self.data = data
     }
-    
-    public init(name: String, value: String) {
-        self.name = name
-        self.filename = nil
-        self.contentType = nil
-        self.data = value.data(using: .utf8) ?? Data()
-    }
 }
 
 public struct MultipartFormCoding<Value: Codable>: Conversion {
     public let decoder: UrlFormDecoder
     private let boundary: String
-    private let fields: [MultipartFormField]
     
     public init(
         _ type: Value.Type,
-        fields: [MultipartFormField],
         decoder: UrlFormDecoder = .init()
     ) {
         self.decoder = decoder
         self.boundary = "Boundary-\(UUID().uuidString)"
-        self.fields = fields
     }
     
     public var contentType: String {
@@ -48,24 +38,28 @@ public struct MultipartFormCoding<Value: Codable>: Conversion {
     }
     
     public func apply(_ input: Data) throws -> Value {
-        // If Value is Data, return input directly
-        if Value.self == Data.self {
-            return input as! Value
-        }
-        
-        // Otherwise try to decode using the provided decoder
-        do {
-            return try decoder.decode(Value.self, from: input)
-        } catch {
-            throw MultipartFormCodingError.decodingFailed(error)
-        }
+        try decoder.decode(Value.self, from: input)
     }
     
     public func unapply(_ output: Value) -> Data {
         var body = Data()
         
-        // Add each field to the multipart form data
-        for field in fields {
+        let encoder = JSONEncoder()
+        guard let fieldData = try? encoder.encode(output),
+              var fields = try? JSONSerialization.jsonObject(with: fieldData) as? [String: Any] else {
+            return body
+        }
+        
+        // Remove null values
+        fields = fields.filter { $0.value is NSNull == false }
+        
+        for (key, value) in fields {
+            let field = MultipartFormField(
+                name: key,
+                contentType: "text/plain",
+                data: String(describing: value).data(using: .utf8) ?? Data()
+            )
+            
             // Append boundary
             body.append("--\(boundary)\r\n")
             
@@ -95,13 +89,6 @@ public struct MultipartFormCoding<Value: Codable>: Conversion {
     }
 }
 
-// MARK: - Custom Error Handling
-public enum MultipartFormCodingError: Error {
-    case decodingFailed(Error)
-    case unsupportedValueType(String)
-}
-
-// MARK: - Data Extension for Easier Handling
 private extension Data {
     mutating func append(_ string: String) {
         if let data = string.data(using: .utf8) {
@@ -113,10 +100,20 @@ private extension Data {
 // MARK: - Conversion Extension
 extension Conversion {
     @inlinable
-    public static func multipart<Value>(
+    public static func multipart<Value: Codable>(
         _ type: Value.Type,
-        fields: [MultipartFormField]
-    ) -> MultipartFormCoding<Value> {
-        MultipartFormCoding(type, fields: fields)
+        decoder: UrlFormDecoder = .init()
+    ) -> Self where Self == MultipartFormCoding<Value> {
+        .init(type, decoder: decoder)
+    }
+}
+
+extension Conversion {
+    @inlinable
+    public func multipart<Value: Codable>(
+        _ type: Value.Type,
+        decoder: UrlFormDecoder = .init()
+    ) -> Conversions.Map<Self, MultipartFormCoding<Value>> {
+        self.map(.multipart(type, decoder: decoder))
     }
 }
