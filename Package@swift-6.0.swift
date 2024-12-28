@@ -10,6 +10,7 @@ extension String {
     static let swiftWeb: Self = "SwiftWeb"
     static let urlFormCoding: Self = "UrlFormCoding"
     static let rfc2822: Self = "RFC2822"
+    static let domain: Self = "Domain"
 }
 
 extension Target.Dependency {
@@ -19,6 +20,7 @@ extension Target.Dependency {
     static var swiftWeb: Self { .target(name: .swiftWeb) }
     static var urlFormCoding: Self { .target(name: .urlFormCoding) }
     static var rfc2822: Self { .target(name: .rfc2822) }
+    static var domain: Self { .target(name: .domain) }
 }
 
 extension Target.Dependency {
@@ -34,13 +36,8 @@ extension Target.Dependency {
 }
 extension Target.Dependency {
     static var dependencies: Self { .product(name: "Dependencies", package: "swift-dependencies") }
-    static var either: Self { .product(name: "Either", package: "swift-prelude") }
     static var logging: Self { .product(name: "Logging", package: "swift-log") }
-    static var postgresKit: Self { .product(name: "PostgresKit", package: "postgres-kit") }
-    static var optics: Self { .product(name: "Optics", package: "swift-prelude") }
     static var swiftHtml: Self { .product(name: "HTML", package: "swift-html") }
-    static var prelude: Self { .product(name: "Prelude", package: "swift-prelude") }
-    static var tagged: Self { .product(name: "Tagged", package: "swift-tagged") }
     static var parsing: Self { .product(name: "Parsing", package: "swift-parsing") }
     static var urlRouting: Self { .product(name: "URLRouting", package: "swift-url-routing") }
     static var swiftDate: Self { .product(name: "Date", package: "swift-date") }
@@ -53,11 +50,8 @@ extension [Package.Dependency] {
             .package(url: "https://github.com/coenttb/swift-date", branch: "main"),
             .package(url: "https://github.com/coenttb/pointfree-web", branch: "main"),
             .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.1.5"),
-            .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0"),
-            .package(url: "https://github.com/pointfreeco/swift-prelude.git", branch: "main"),
             .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.6.0"),
             .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.13.0"),
-            .package(url: "https://github.com/vapor/postgres-kit", from: "2.12.0"),
         ]
     }
 }
@@ -72,13 +66,16 @@ let package = Package(
         .library(
             name: .swiftWeb,
             targets: [
+                .domain,
                 .rfc2822,
                 .swiftWeb,
                 .favicon,
                 .sitemap,
                 .urlFormCoding,
+                .emailAddress,
             ]
         ),
+        .library(name: .domain, targets: [.domain]),
         .library(name: .emailAddress, targets: [.emailAddress]),
         .library(name: .favicon, targets: [.favicon]),
         .library(name: .sitemap, targets: [.sitemap]),
@@ -87,6 +84,17 @@ let package = Package(
     ],
     dependencies: .default,
     targets: [
+        .target(
+            name: .domain,
+            dependencies: [
+            ]
+        ),
+        .testTarget(
+            name: .domain.tests,
+            dependencies: [
+                .domain
+            ]
+        ),
         .target(
             name: .emailAddress,
             dependencies: [
