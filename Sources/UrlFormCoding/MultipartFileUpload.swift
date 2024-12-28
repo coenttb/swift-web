@@ -90,3 +90,17 @@ public struct FileUpload {
         )
     }
 }
+
+// Convenience constructors
+extension Conversion where Self == MultipartFileUpload {
+    public static func csv(
+        fieldName: String = "file",
+        filename: String = "file.csv"
+    ) -> Self {
+        .init(
+            fieldName: fieldName,
+            filename: filename,
+            contentType: "text/csv"
+        )
+    }
+}
