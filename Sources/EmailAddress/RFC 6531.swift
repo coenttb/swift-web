@@ -23,29 +23,38 @@ extension EmailAddress {
         
         /// Initialize with components
         public init(displayName: String? = nil, localPart: LocalPart, domain: Domain.RFC1123) {
-            self.displayName = displayName
+            self.displayName = displayName?.trimmingCharacters(in: .whitespaces)
             self.localPart = localPart
             self.domain = domain
         }
         
         /// Initialize from string representation ("Name <local@domain>" or "local@domain")
         public init(_ string: String) throws {
+            // Address format regex with optional display name and proper space handling
+            let displayNameCapture = /((?:\"(?:[^\"\\]|\\.)*\"|[^<]+?))\s*/
+            
+            let emailCapture = /<([^@]+)@([^>]+)>/
+            
+            let fullRegex = Regex {
+                Optionally {
+                    displayNameCapture
+                }
+                emailCapture
+            }
             
             // Try matching the full address format first (with angle brackets)
-            if let match = try? Self.addressRegex.wholeMatch(in: string) {
+            if let match = try? fullRegex.wholeMatch(in: string) {
                 let captures = match.output
                 
-                // Extract display name if present (first capture group)
+                // Extract display name if present and normalize spaces
                 let displayName = captures.1.map { name in
-                    if name.hasPrefix("\"") && name.hasSuffix("\"") {
-                        // For quoted strings, we need to:
-                        // 1. Remove the outer quotes
-                        // 2. Handle escaped characters properly
-                        let withoutQuotes = String(name.dropFirst().dropLast())
+                    let trimmedName = name.trimmingCharacters(in: .whitespaces)
+                    if trimmedName.hasPrefix("\"") && trimmedName.hasSuffix("\"") {
+                        let withoutQuotes = String(trimmedName.dropFirst().dropLast())
                         return withoutQuotes.replacingOccurrences(of: #"\""#, with: "\"")
                             .replacingOccurrences(of: #"\\"#, with: "\\")
                     }
-                    return String(name)
+                    return trimmedName
                 }
                 
                 let localPart = String(captures.2)
@@ -65,7 +74,6 @@ extension EmailAddress {
                 let localString = String(string[..<atIndex])
                 let domainString = String(string[string.index(after: atIndex)...])
                 
-                // For bare addresses, no display name
                 try self.init(
                     displayName: nil,
                     localPart: LocalPart(localString),
@@ -75,6 +83,8 @@ extension EmailAddress {
         }
     }
 }
+
+
 
 // MARK: - Local Part
 extension EmailAddress.RFC6531 {
@@ -151,14 +161,13 @@ extension EmailAddress.RFC6531 {
     nonisolated(unsafe) private static let addressRegex = /(?:((?:\"[^>]+\"|[^<]+)\s+))?<([^@]+)@([^>]+)>/
     
     // UTF-8 atom regex: allows Unicode letters and common symbols
-    nonisolated(unsafe) private static let utf8AtomRegex = /[\p{L}\p{N}#$%&'\*\+\-\/=\?\^_`\{\}~]+/
+    nonisolated(unsafe) private static let utf8AtomRegex = /[\p{L}\p{N}!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+/
     
     // Quoted string regex: allows any printable character except unescaped quotes
     // Also allows UTF-8 characters
     nonisolated(unsafe) private static let quotedRegex = /(?:[^"\\\r\n]|\\["\\]|\p{L}|\p{N}|\p{P}|\p{S})+/
 }
 
-// MARK: - Properties
 extension EmailAddress.RFC6531 {
     /// The complete email address string, including display name if present
     public var stringValue: String {
@@ -169,7 +178,7 @@ extension EmailAddress.RFC6531 {
                 $0.asciiValue == nil
             })
             let quotedName = needsQuoting ? "\"\(name)\"" : name
-            return "\(quotedName) <\(localPart.stringValue)@\(domain.name)>"
+            return "\(quotedName) <\(localPart.stringValue)@\(domain.name)>" // Exactly one space before angle bracket
         }
         return "\(localPart.stringValue)@\(domain.name)"
     }

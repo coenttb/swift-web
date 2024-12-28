@@ -23,16 +23,15 @@ extension EmailAddress {
         
         /// Initialize with components
         public init(displayName: String? = nil, localPart: LocalPart, domain: Domain.RFC1123) {
-            self.displayName = displayName
+            self.displayName = displayName?.trimmingCharacters(in: .whitespaces)
             self.localPart = localPart
             self.domain = domain
         }
         
         /// Initialize from string representation ("Name <local@domain>" or "local@domain")
-        /// Initialize from string representation ("Name <local@domain>" or "local@domain")
         public init(_ string: String) throws {
             // Define regex components using Regex builder for more robust parsing
-            let displayNameCapture = /((?:\"(?:(?:\\[\"\\])|[^\"\\])+\"|[^<]+)\s+)/
+            let displayNameCapture = /((?:\"(?:(?:\\[\"\\])|[^\"\\])+\"|[^<]+?))\s*/
             
             let emailCapture = Regex {
                 "<"
@@ -64,15 +63,16 @@ extension EmailAddress {
             // Try matching the full address format first (with angle brackets)
             if let match = try? fullRegex.wholeMatch(in: string) {
                 let displayName = match.output.1.map { name in
-                    if name.hasPrefix("\"") && name.hasSuffix("\"") {
+                    let trimmedName = name.trimmingCharacters(in: .whitespaces)
+                    if trimmedName.hasPrefix("\"") && trimmedName.hasSuffix("\"") {
                         // For quoted strings, we need to:
                         // 1. Remove the outer quotes
                         // 2. Handle escaped characters
-                        let withoutQuotes = String(name.dropFirst().dropLast())
+                        let withoutQuotes = String(trimmedName.dropFirst().dropLast())
                         return withoutQuotes.replacingOccurrences(of: #"\""#, with: "\"")
                             .replacingOccurrences(of: #"\\"#, with: "\\")
                     }
-                    return String(name)
+                    return trimmedName
                 }
                 
                 let localPart = String(match.output.2)
@@ -172,7 +172,6 @@ extension EmailAddress.RFC5322 {
     nonisolated(unsafe) private static let quotedRegex = /(?:[^"\\\r\n]|\\["\\])+/
 }
 
-// MARK: - Properties
 extension EmailAddress.RFC5322 {
     /// The complete email address string, including display name if present
     public var stringValue: String {
@@ -183,7 +182,7 @@ extension EmailAddress.RFC5322 {
                 $0.asciiValue == nil
             })
             let quotedName = needsQuoting ? "\"\(name)\"" : name
-            return "\(quotedName) <\(localPart.stringValue)@\(domain.name)>"
+            return "\(quotedName) <\(localPart.stringValue)@\(domain.name)>"  // Exactly one space before angle bracket
         }
         return "\(localPart.stringValue)@\(domain.name)"
     }

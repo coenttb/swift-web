@@ -16,14 +16,14 @@ extension EmailAddress {
         
         /// Initialize with components
         public init(displayName: String? = nil, localPart: LocalPart, domain: Domain.RFC5321) {
-            self.displayName = displayName
+            self.displayName = displayName?.trimmingCharacters(in: .whitespaces)
             self.localPart = localPart
             self.domain = domain
         }
         
         /// Initialize from string representation ("Name <local@domain>" or "local@domain")
         public init(_ string: String) throws {
-            let displayNameCapture = /(?:((?:\"(?:[^\"\\]|\\.)*\"|[^<]+)\s+))/
+            let displayNameCapture = /(?:((?:\"(?:[^\"\\]|\\.)*\"|[^<]+?))\s*)/
 
             let emailCapture = /<([^@]+)@([^>]+)>/
             
@@ -38,14 +38,15 @@ extension EmailAddress {
             if let match = try? fullRegex.wholeMatch(in: string) {
                 let captures = match.output
                 
-                // Extract display name if present
+                // Extract display name if present and normalize spaces
                 let displayName = captures.1.map { name in
-                    if name.hasPrefix("\"") && name.hasSuffix("\"") {
-                        let withoutQuotes = String(name.dropFirst().dropLast())
+                    let trimmedName = name.trimmingCharacters(in: .whitespaces)
+                    if trimmedName.hasPrefix("\"") && trimmedName.hasSuffix("\"") {
+                        let withoutQuotes = String(trimmedName.dropFirst().dropLast())
                         return withoutQuotes.replacingOccurrences(of: "\\\"", with: "\"")
                             .replacingOccurrences(of: "\\\\", with: "\\")
                     }
-                    return String(name).trimmingCharacters(in: .whitespaces)
+                    return trimmedName
                 }
                 
                 let localPart = String(captures.2)
@@ -74,6 +75,7 @@ extension EmailAddress {
         }
     }
 }
+
 // MARK: - Local Part
 extension EmailAddress.RFC5321 {
     /// RFC 5321 compliant local-part
@@ -132,7 +134,6 @@ extension EmailAddress.RFC5321 {
     nonisolated(unsafe) private static let quotedRegex = /(?:[^"\\]|\\["\\])+/
 }
 
-// MARK: - Properties
 extension EmailAddress.RFC5321 {
     /// The complete email address string, including display name if present
     public var stringValue: String {
@@ -141,7 +142,7 @@ extension EmailAddress.RFC5321 {
             let quotedName = needsQuoting ?
                 "\"\(name.replacingOccurrences(of: "\"", with: "\\\""))\"" :
                 name
-            return "\(quotedName) <\(localPart.stringValue)@\(domain.name)>"
+            return "\(quotedName) <\(localPart.stringValue)@\(domain.name)>"  // Exactly one space before angle bracket
         }
         return "\(localPart.stringValue)@\(domain.name)"
     }
@@ -151,6 +152,7 @@ extension EmailAddress.RFC5321 {
         "\(localPart.stringValue)@\(domain.name)"
     }
 }
+
 
 // MARK: - Errors
 extension EmailAddress.RFC5321 {
@@ -180,36 +182,17 @@ extension EmailAddress.RFC5321: CustomStringConvertible {
     public var description: String { stringValue }
 }
 
+
 extension EmailAddress.RFC5321: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case address
-        case displayName
-    }
-    
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(addressValue, forKey: .address)
-        try container.encodeIfPresent(displayName, forKey: .displayName)
+        var container = encoder.singleValueContainer()
+        try container.encode(self.rawValue)
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let address = try container.decode(String.self, forKey: .address)
-        let displayName = try container.decodeIfPresent(String.self, forKey: .displayName)
-        
-        // Parse address part first
-        guard let atIndex = address.firstIndex(of: "@") else {
-            throw ValidationError.missingAtSign
-        }
-        
-        let localString = String(address[..<atIndex])
-        let domainString = String(address[address.index(after: atIndex)...])
-        
-        try self.init(
-            displayName: displayName,
-            localPart: LocalPart(localString),
-            domain: Domain.RFC5321(domainString)
-        )
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        try self.init(rawValue)
     }
 }
 
