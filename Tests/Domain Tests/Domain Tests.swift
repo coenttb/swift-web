@@ -32,7 +32,7 @@ struct DomainTests {
     
     @Test("Successfully creates domain from RFC1035")
     func testCreateFromRFC1035() throws {
-        let rfc1035 = try RFC1035("example.com")
+        let rfc1035 = try Domain.RFC1035("example.com")
         let domain = try Domain(rfc1035: rfc1035)
         #expect(domain.name == "example.com")
         #expect(domain.rfc1035?.name == "example.com")
@@ -42,7 +42,7 @@ struct DomainTests {
     
     @Test("Successfully creates domain from RFC1123")
     func testCreateFromRFC1123() throws {
-        let rfc1123 = try RFC1123("example.com")
+        let rfc1123 = try Domain.RFC1123("example.com")
         let domain = try Domain(rfc1123: rfc1123)
         #expect(domain.rfc1035 == nil)
         #expect(domain.rfc1123?.name == "example.com")
@@ -51,7 +51,7 @@ struct DomainTests {
     
     @Test("Successfully creates domain from RFC5321")
     func testCreateFromRFC5321() throws {
-        let rfc5321 = try RFC5321("[192.168.1.1]")
+        let rfc5321 = try Domain.RFC5321("[192.168.1.1]")
         let domain = Domain(rfc5321: rfc5321)
         #expect(domain.rfc1035 == nil)
         #expect(domain.rfc1123 == nil)

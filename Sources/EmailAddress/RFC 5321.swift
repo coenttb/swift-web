@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  swift-web
-//
-//  Created by Coen ten Thije Boonkkamp on 28/12/2024.
-//
-
 import Foundation
 import RegexBuilder
 import Domain
@@ -29,93 +22,58 @@ extension EmailAddress {
         }
         
         /// Initialize from string representation ("Name <local@domain>" or "local@domain")
-            public init(_ string: String) throws {
-                // Define regex components using Regex builder for more robust parsing
-                let displayNameCapture = Regex {
-                    Capture {
-                        // Either a quoted string or unquoted text not containing angle brackets
-                        ChoiceOf {
-                            Regex {
-                                "\""
-                                OneOrMore(.any, .reluctant)
-                                "\""
-                            }
-                            OneOrMore {
-                                NegativeLookahead { "<" }
-                                CharacterClass.any
-                            }
-                        }
-                        OneOrMore(.whitespace)
-                    }
-                    
+        public init(_ string: String) throws {
+            let displayNameCapture = /(?:((?:\"(?:[^\"\\]|\\.)*\"|[^<]+)\s+))/
+
+            let emailCapture = /<([^@]+)@([^>]+)>/
+            
+            let fullRegex = Regex {
+                Optionally {
+                    displayNameCapture
                 }
-                
-                let emailCapture = Regex {
-                    "<"
-                    Capture {
-                        OneOrMore(.reluctant) {
-                            NegativeLookahead { "@" }
-                            CharacterClass.any
-                        }
-                    }
-                    "@"
-                    Capture {
-                        OneOrMore(.reluctant) {
-                            NegativeLookahead { ">" }
-                            CharacterClass.any
-                        }
-                    }
-                    ">"
-                }
-                
-                let fullRegex = Regex {
-                    Optionally {
-                        displayNameCapture
-                    }
-                    emailCapture
-                }
-                
-                // Try matching the full address format first (with angle brackets)
-                if let match = try? fullRegex.wholeMatch(in: string) {
-                    let captures = match.output
-                    
-                    // Extract display name if present
-                    let displayName = captures.1.map { name in
-                        // Remove quotes if present
-                        if name.hasPrefix("\"") && name.hasSuffix("\"") {
-                            return String(name.dropFirst().dropLast())
-                        }
-                        return String(name)
-                    }
-                    
-                    let localPart = String(captures.2)
-                    let domain = String(captures.3)
-                    
-                    try self.init(
-                        displayName: displayName,
-                        localPart: LocalPart(localPart),
-                        domain: Domain.RFC5321(domain)
-                    )
-                } else {
-                    // Try parsing as bare email address
-                    guard let atIndex = string.firstIndex(of: "@") else {
-                        throw ValidationError.missingAtSign
-                    }
-                    
-                    let localString = String(string[..<atIndex])
-                    let domainString = String(string[string.index(after: atIndex)...])
-                    
-                    try self.init(
-                        displayName: nil,
-                        localPart: LocalPart(localString),
-                        domain: Domain.RFC5321(domainString)
-                    )
-                }
+                emailCapture
             }
+            
+            // Try matching the full address format first (with angle brackets)
+            if let match = try? fullRegex.wholeMatch(in: string) {
+                let captures = match.output
+                
+                // Extract display name if present
+                let displayName = captures.1.map { name in
+                    if name.hasPrefix("\"") && name.hasSuffix("\"") {
+                        let withoutQuotes = String(name.dropFirst().dropLast())
+                        return withoutQuotes.replacingOccurrences(of: "\\\"", with: "\"")
+                            .replacingOccurrences(of: "\\\\", with: "\\")
+                    }
+                    return String(name).trimmingCharacters(in: .whitespaces)
+                }
+                
+                let localPart = String(captures.2)
+                let domain = String(captures.3)
+                
+                try self.init(
+                    displayName: displayName,
+                    localPart: LocalPart(localPart),
+                    domain: Domain.RFC5321(domain)
+                )
+            } else {
+                // Try parsing as bare email address
+                guard let atIndex = string.firstIndex(of: "@") else {
+                    throw ValidationError.missingAtSign
+                }
+                
+                let localString = String(string[..<atIndex])
+                let domainString = String(string[string.index(after: atIndex)...])
+                
+                try self.init(
+                    displayName: nil,
+                    localPart: LocalPart(localString),
+                    domain: Domain.RFC5321(domainString)
+                )
+            }
+        }
     }
 }
-
-
 // MARK: - Local Part
 extension EmailAddress.RFC5321 {
     /// RFC 5321 compliant local-part
@@ -167,11 +125,8 @@ extension EmailAddress.RFC5321 {
         static let maxLength = 64  // Max length for local-part
     }
     
-    // Address format regex with optional display name
-    nonisolated(unsafe) private static let addressRegex = /(?:(?:\"[^>]+\"|[^<]+)\s+)?<([^@]+)@([^>]+)>/
-    
     // Dot-atom regex: series of atoms separated by dots
-    nonisolated(unsafe) private static let dotAtomRegex = /[a-zA-Z0-9!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+(?:\.[a-zA-Z0-9!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+)*/
+    nonisolated(unsafe) private static let dotAtomRegex = /[a-zA-Z0-9!#$%&'*+\-\/=?\^_`{|}~]+(?:\.[a-zA-Z0-9!#$%&'*+\-\/=?\^_`{|}~]+)*/
     
     // Quoted string regex: allows any printable character except unescaped quotes
     nonisolated(unsafe) private static let quotedRegex = /(?:[^"\\]|\\["\\])+/
@@ -182,9 +137,10 @@ extension EmailAddress.RFC5321 {
     /// The complete email address string, including display name if present
     public var stringValue: String {
         if let name = displayName {
-            // Quote the display name if it contains special characters
             let needsQuoting = name.contains(where: { !$0.isLetter && !$0.isNumber && !$0.isWhitespace })
-            let quotedName = needsQuoting ? "\"\(name)\"" : name
+            let quotedName = needsQuoting ?
+                "\"\(name.replacingOccurrences(of: "\"", with: "\\\""))\"" :
+                name
             return "\(quotedName) <\(localPart.stringValue)@\(domain.name)>"
         }
         return "\(localPart.stringValue)@\(domain.name)"
