@@ -14,7 +14,7 @@ public struct MultipartFileUpload: Conversion {
     private let boundary: String
     private let fieldName: String
     private let filename: String
-    private let contentType: String
+    private let _contentType: String
     
     public init(
         fieldName: String = "file",
@@ -23,11 +23,11 @@ public struct MultipartFileUpload: Conversion {
     ) {
         self.fieldName = fieldName
         self.filename = filename
-        self.contentType = contentType
+        self._contentType = contentType
         self.boundary = "Boundary-\(UUID().uuidString)"
     }
     
-    public var contentType2: String {
+    public var contentType: String {
         "multipart/form-data; boundary=\(boundary)"
     }
     
@@ -39,7 +39,7 @@ public struct MultipartFileUpload: Conversion {
         var body = Data()
         body.append("--\(boundary)\r\n")
         body.append("Content-Disposition: form-data; name=\"\(fieldName)\"; filename=\"\(filename)\"\r\n")
-        body.append("Content-Type: \(self.contentType)\r\n")
+        body.append("Content-Type: \(self._contentType)\r\n")
         body.append("\r\n")
         body.append(data)
         body.append("\r\n")
