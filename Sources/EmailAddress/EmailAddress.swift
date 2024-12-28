@@ -217,25 +217,15 @@ extension EmailAddress: CustomStringConvertible {
 }
 
 extension EmailAddress: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case address
-        case displayName
-    }
-    
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(addressValue, forKey: .address)
-        try container.encodeIfPresent(displayName, forKey: .displayName)
+        var container = encoder.singleValueContainer()
+        try container.encode(self.rawValue)
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let address = try container.decode(String.self, forKey: .address)
-        let displayName = try container.decodeIfPresent(String.self, forKey: .displayName)
-        try self.init(
-            displayName: displayName,
-            address
-        )
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        try self.init(rawValue)
     }
 }
 
