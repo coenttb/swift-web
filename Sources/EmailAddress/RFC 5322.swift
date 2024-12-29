@@ -237,35 +237,15 @@ extension EmailAddress.RFC5322: CustomStringConvertible {
 }
 
 extension EmailAddress.RFC5322: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case address
-        case displayName
-    }
-    
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(addressValue, forKey: .address)
-        try container.encodeIfPresent(displayName, forKey: .displayName)
+        var container = encoder.singleValueContainer()
+        try container.encode(self.rawValue)
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let address = try container.decode(String.self, forKey: .address)
-        let displayName = try container.decodeIfPresent(String.self, forKey: .displayName)
-        
-        // Parse address part first
-        guard let atIndex = address.firstIndex(of: "@") else {
-            throw ValidationError.missingAtSign
-        }
-        
-        let localString = String(address[..<atIndex])
-        let domainString = String(address[address.index(after: atIndex)...])
-        
-        try self.init(
-            displayName: displayName,
-            localPart: LocalPart(localString),
-            domain: Domain.RFC1123(domainString)
-        )
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        try self.init(rawValue)
     }
 }
 

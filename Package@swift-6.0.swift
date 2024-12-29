@@ -4,43 +4,42 @@ import Foundation
 import PackageDescription
 
 extension String {
+    static let domain: Self = "Domain"
     static let emailAddress: Self = "EmailAddress"
     static let favicon: Self = "Favicon"
+    static let rfc2822: Self = "RFC2822"
     static let sitemap: Self = "Sitemap"
     static let swiftWeb: Self = "SwiftWeb"
     static let urlFormCoding: Self = "UrlFormCoding"
-    static let rfc2822: Self = "RFC2822"
-    static let domain: Self = "Domain"
 }
 
 extension Target.Dependency {
+    static var domain: Self { .target(name: .domain) }
     static var emailAddress: Self { .target(name: .emailAddress) }
     static var favicon: Self { .target(name: .favicon) }
+    static var rfc2822: Self { .target(name: .rfc2822) }
     static var sitemap: Self { .target(name: .sitemap) }
     static var swiftWeb: Self { .target(name: .swiftWeb) }
     static var urlFormCoding: Self { .target(name: .urlFormCoding) }
-    static var rfc2822: Self { .target(name: .rfc2822) }
-    static var domain: Self { .target(name: .domain) }
 }
 
 extension Target.Dependency {
     static var appSecret: Self { .product(name: "AppSecret", package: "pointfree-web") }
     static var database: Self { .product(name: "DatabaseHelpers", package: "pointfree-web") }
     static var decodableRequest: Self { .product(name: "DecodableRequest", package: "pointfree-web") }
+    static var dependencies: Self { .product(name: "Dependencies", package: "swift-dependencies") }
+    static var dependenciesTestSupport: Self { .product(name: "DependenciesTestSupport", package: "swift-dependencies") }
     static var foundationPrelude: Self { .product(name: "FoundationPrelude", package: "pointfree-web") }
     static var httpPipeline: Self { .product(name: "HttpPipeline", package: "pointfree-web") }
-    static var nioDependencies: Self { .product(name: "NIODependencies", package: "pointfree-web") }
-    static var urlFormEncoding: Self { .product(name: "UrlFormEncoding", package: "pointfree-web") }
     static var mediaType: Self { .product(name: "MediaType", package: "pointfree-web") }
-    static var loggingDependencies: Self { .product(name: "LoggingDependencies", package: "pointfree-web") }
-}
-extension Target.Dependency {
-    static var dependencies: Self { .product(name: "Dependencies", package: "swift-dependencies") }
+    static var nioDependencies: Self { .product(name: "NIODependencies", package: "pointfree-web") }
     static var logging: Self { .product(name: "Logging", package: "swift-log") }
-    static var swiftHtml: Self { .product(name: "HTML", package: "swift-html") }
+    static var loggingDependencies: Self { .product(name: "LoggingDependencies", package: "pointfree-web") }
     static var parsing: Self { .product(name: "Parsing", package: "swift-parsing") }
-    static var urlRouting: Self { .product(name: "URLRouting", package: "swift-url-routing") }
     static var swiftDate: Self { .product(name: "Date", package: "swift-date") }
+    static var swiftHtml: Self { .product(name: "HTML", package: "swift-html") }
+    static var urlFormEncoding: Self { .product(name: "UrlFormEncoding", package: "pointfree-web") }
+    static var urlRouting: Self { .product(name: "URLRouting", package: "swift-url-routing") }
 }
 
 extension [Package.Dependency] {
@@ -133,6 +132,13 @@ let package = Package(
                 .dependencies,
                 .urlRouting,
                 .urlFormEncoding
+            ]
+        ),
+        .testTarget(
+            name: .urlFormCoding.tests,
+            dependencies: [
+                .urlFormCoding,
+                .dependenciesTestSupport
             ]
         ),
         .target(
