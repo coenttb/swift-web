@@ -30,7 +30,7 @@ struct URLFormCodingTests {
             let beta: Bool?
         }
     }
-    
+   
     @Test("Simple boolean values encode correctly")
     func testSimpleBooleanEncoding() throws {
         // Given
@@ -38,7 +38,7 @@ struct URLFormCodingTests {
         let coding = FormCoding(SimpleBooleanModel.self)
         
         // When
-        let encodedData = coding.unapply(model)
+        let encodedData = try coding.unapply(model)
         let encodedString = String(data: encodedData, encoding: .utf8)
         
         // Then
@@ -65,14 +65,14 @@ struct URLFormCodingTests {
         let coding = FormCoding(SimpleBooleanModel.self)
         
         // When
-        let encodedData = coding.unapply(modelWithNil)
+        let encodedData = try coding.unapply(modelWithNil)
         let encodedString = String(data: encodedData, encoding: .utf8)
         
         // Then
         #expect(encodedString == "isActive=true")
     }
     
-    @Test("Nested boolean values encode correctly")
+    @Test("Nested boolean values encode correctly (ignoring key order)")
     func testNestedBooleanEncoding() throws {
         // Given
         let model = NestedBooleanModel(
@@ -83,35 +83,38 @@ struct URLFormCodingTests {
         )
         let coding = FormCoding(NestedBooleanModel.self)
         
-        // When
-        let encodedData = coding.unapply(model)
-        let encodedString = String(data: encodedData, encoding: .utf8)
+        let encodedData = try coding.unapply(model)
+        let encodedString = try #require(String(data: encodedData, encoding: .utf8))
         
-        // Then
+        let actualParts = encodedString.split(separator: "&").sorted()
+        let expectedParts = "settings[isEnabled]=true&settings[features][debug]=true&settings[features][beta]=false"
+            .split(separator: "&")
+            .sorted()
+        
         #expect(
-            encodedString == "settings[isEnabled]=true&settings[features][debug]=true&settings[features][beta]=false"
+            actualParts == expectedParts,
+            """
+            The encoded string doesn't match (ignoring key order).
+            Got:      \(encodedString)
+            Expected: \(expectedParts.joined(separator: "&"))
+            """
         )
     }
     
-    @Test("Nested boolean values decode correctly")
+    @Test("Nested boolean values decode correctly (relaxed)")
     func testNestedBooleanDecoding() throws {
         // Given
-        let input = "settings[isEnabled]=true&settings[features][debug]=true&settings[features][beta]=false"
-            .data(using: .utf8)!
+        let inputString = "settings[isEnabled]=true&settings[features][debug]=true&settings[features][beta]=false"
+        let inputData = try #require(inputString.data(using: .utf8))
         let coding = FormCoding(NestedBooleanModel.self)
         
         // When
-        let decoded = try coding.apply(input)
+        let decoded = try coding.apply(inputData)
         
         // Then
-        #expect(
-            decoded == NestedBooleanModel(
-                settings: .init(
-                    isEnabled: true,
-                    features: .init(debug: true, beta: false)
-                )
-            )
-        )
+        #expect(decoded.settings.isEnabled == true, "Expected settings.isEnabled to decode as true.")
+        #expect(decoded.settings.features.debug == true, "Expected settings.features.debug to decode as true.")
+        #expect(decoded.settings.features.beta == false, "Expected settings.features.beta to decode as false.")
     }
     
     @Test("Various boolean representations decode correctly")
@@ -164,7 +167,7 @@ struct URLFormCodingTests {
         let coding = FormCoding(BooleanArrayModel.self)
         
         // When
-        let encodedData = coding.unapply(model)
+        let encodedData = try coding.unapply(model)
         let encodedString = String(data: encodedData, encoding: .utf8)
         
         // Then

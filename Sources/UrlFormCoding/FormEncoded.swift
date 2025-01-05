@@ -1,22 +1,22 @@
 import Foundation
 import Parsing
-@_exported import UrlFormEncoding
+
 
 extension Conversion {
     @inlinable
     public static func form<Value>(
         _ type: Value.Type,
         decoder: UrlFormDecoder = .init(),
-        encoder: JSONEncoder = .init()
+        encoder: UrlFormEncoder = .init()
     ) -> Self where Self == FormCoding<Value> {
         .init(type, decoder: decoder, encoder: encoder)
     }
-
+    
     @inlinable
     public func form<Value>(
         _ type: Value.Type,
         decoder: UrlFormDecoder = .init(),
-        encoder: JSONEncoder = .init()
+        encoder: UrlFormEncoder = .init()
     ) -> Conversions.Map<Self, FormCoding<Value>> {
         self.map(.form(type, decoder: decoder, encoder: encoder))
     }
@@ -24,13 +24,13 @@ extension Conversion {
 
 public struct FormCoding<Value: Codable>: Conversion {
     public let decoder: UrlFormDecoder
-    public let encoder: JSONEncoder
+    public let encoder: UrlFormEncoder
     
     @inlinable
     public init(
         _ type: Value.Type,
         decoder: UrlFormDecoder = .init(),
-        encoder: JSONEncoder = .init()
+        encoder: UrlFormEncoder = .init()
     ) {
         self.decoder = decoder
         self.encoder = encoder
@@ -42,8 +42,8 @@ public struct FormCoding<Value: Codable>: Conversion {
     }
     
     @inlinable
-    public func unapply(_ output: Value) -> Data {
-        Data(urlFormEncode(value: output, encoder: encoder).utf8)
+    public func unapply(_ output: Value) throws -> Data {
+        try encoder.encode(output)
     }
 }
 
