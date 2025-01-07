@@ -8,6 +8,7 @@ extension String {
     static let emailAddress: Self = "EmailAddress"
     static let favicon: Self = "Favicon"
     static let rfc2822: Self = "RFC2822"
+    static let unixEpoch: Self = "UnixEpoch"
     static let sitemap: Self = "Sitemap"
     static let swiftWeb: Self = "SwiftWeb"
     static let urlFormCoding: Self = "UrlFormCoding"
@@ -18,6 +19,7 @@ extension Target.Dependency {
     static var emailAddress: Self { .target(name: .emailAddress) }
     static var favicon: Self { .target(name: .favicon) }
     static var rfc2822: Self { .target(name: .rfc2822) }
+    static var unixEpoch: Self { .target(name: .unixEpoch) }
     static var sitemap: Self { .target(name: .sitemap) }
     static var swiftWeb: Self { .target(name: .swiftWeb) }
     static var urlFormCoding: Self { .target(name: .urlFormCoding) }
@@ -60,6 +62,7 @@ let package = Package(
             targets: [
                 .domain,
                 .rfc2822,
+                .unixEpoch,
                 .swiftWeb,
                 .favicon,
                 .sitemap,
@@ -73,6 +76,7 @@ let package = Package(
         .library(name: .sitemap, targets: [.sitemap]),
         .library(name: .urlFormCoding, targets: [.urlFormCoding]),
         .library(name: .rfc2822, targets: [.rfc2822]),
+        .library(name: .unixEpoch, targets: [.unixEpoch]),
     ],
     dependencies: .default,
     targets: [
@@ -104,6 +108,19 @@ let package = Package(
             dependencies: [
                 .urlRouting,
                 .swiftHtml
+            ]
+        ),
+        .target(
+            name: .unixEpoch,
+            dependencies: [
+                .parsing,
+                .urlRouting,
+            ]
+        ),
+        .testTarget(
+            name: .unixEpoch.tests,
+            dependencies: [
+                .unixEpoch
             ]
         ),
         .target(
