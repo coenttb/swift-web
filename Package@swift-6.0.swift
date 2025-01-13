@@ -45,7 +45,7 @@ extension [Package.Dependency] {
             .package(url: "https://github.com/coenttb/pointfree-web", branch: "main"),
             .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.1.5"),
             .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.6.0"),
-            .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.13.0"),
+            .package(url: "https://github.com/pointfreeco/swift-parsing.git", branch: "main"),
         ]
     }
 }
