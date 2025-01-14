@@ -166,6 +166,7 @@ let package = Package(
                 .sitemap,
                 .urlFormCoding,
                 .mediaType,
+                .unixEpoch,
             ]
         )
     ],
