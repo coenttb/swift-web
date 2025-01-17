@@ -1,6 +1,7 @@
 import URLRouting
 import Parsing
 import Foundation
+import UrlFormEncoding
 
 public struct MultipartFormField {
     let name: String

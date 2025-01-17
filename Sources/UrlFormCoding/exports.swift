@@ -5,4 +5,4 @@
 //  Created by Coen ten Thije Boonkkamp on 17/01/2025.
 //
 
-import Foundation
+@_exported import UrlFormEncoding

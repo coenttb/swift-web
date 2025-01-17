@@ -1,6 +1,6 @@
 import Foundation
 import Parsing
-
+import UrlFormEncoding
 
 extension Conversion {
     @inlinable
