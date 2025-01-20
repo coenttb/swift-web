@@ -54,7 +54,7 @@ let package = Package(
     name: "swift-web",
     platforms: [
         .macOS(.v14),
-        .iOS(.v16)
+        .iOS(.v17)
     ],
     products: [
         .library(
