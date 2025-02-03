@@ -142,6 +142,7 @@ let package = Package(
             name: .webDate,
             dependencies: [
                 .rfc2822,
+                .rfc5322,
                 .parsing,
                 .urlRouting,
             ]

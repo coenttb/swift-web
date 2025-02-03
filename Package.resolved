@@ -101,24 +101,6 @@
       }
     },
     {
-      "identity" : "swift-language",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/coenttb/swift-language.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "63b455da4844a701663dd91bb681bf05a536c92f"
-      }
-    },
-    {
-      "identity" : "swift-logic-operators",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/coenttb/swift-logic-operators.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "19575111ae9c8eb06c03463a54c4420ce100c02e"
-      }
-    },
-    {
       "identity" : "swift-parsing",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-parsing.git",
@@ -160,7 +142,7 @@
       "location" : "https://github.com/coenttb/swift-web-standards",
       "state" : {
         "branch" : "main",
-        "revision" : "68ab629b266066d1a1b9eb4f0c81310929bd622f"
+        "revision" : "7d68e4e8b99aef6e0e1479c2c4f04b54d6782c36"
       }
     },
     {
