@@ -8,36 +8,30 @@
 import Foundation
 import Parsing
 import URLRouting
+import RFC_2822
 
-
-extension Date {
-    public struct RFC2822 {
-        
-    }
-}
-
-extension Date.RFC2822 {
+extension RFC_2822.Date {
     public struct Parser: ParserPrinter {
         
         public init(){}
         
         public var body: some ParserPrinter<Substring, Date> {
-            Parse(.string).map(Date.RFC2822.Conversion())
+            Parse(.string).map(RFC_2822.Date.Conversion())
         }
     }
 }
 
 
 
-extension Date.RFC2822 {
+extension RFC_2822.Date {
     struct Conversion: Parsing.Conversion {
         public typealias Input = String
         public typealias Output = Date
         
         public func apply(_ input: String) throws -> Date {
             
-            guard let date = Date.RFC2822.formatter.date(from: input) else {
-                throw Date.RFC2822.Conversion.Error.invalidDate(input)
+            guard let date = RFC_2822.Date.formatter.date(from: input) else {
+                throw RFC_2822.Date.Conversion.Error.invalidDate(input)
             }
             return date
         }
@@ -53,7 +47,7 @@ extension Date.RFC2822 {
 }
 
 @available(macOS 12.0, *)
-extension Date.RFC2822 {
+extension RFC_2822.Date {
     public static let formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -90,6 +84,6 @@ public struct RFC2822DateStyle: FormatStyle {
     public typealias FormatOutput = String
 
     public func format(_ value: Date) -> String {
-        Date.RFC2822.formatter.string(from: value)
+        RFC_2822.Date.formatter.string(from: value)
     }
 }

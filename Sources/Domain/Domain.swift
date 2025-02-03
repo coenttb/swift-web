@@ -5,39 +5,44 @@
 //  Created by Coen ten Thije Boonkkamp on 28/12/2024.
 //
 import Foundation
+import RFC_1035
+import RFC_1123
+import RFC_5321
 
 /// A domain name that can be represented according to different RFC standards
 public struct Domain: Hashable, Sendable {
-    let rfc1035: RFC1035?
-    let rfc1123: RFC1123?
-    let rfc5321: RFC5321
+    let rfc1035: RFC_1035.Domain?
+    let rfc1123: RFC_1123.Domain?
+    let rfc5321: RFC_5321.Domain
     
     /// Initialize with a domain string
     public init(_ string: String) throws {
         // RFC 5321 is required as it's our most permissive format
-        self.rfc5321 = try RFC5321(string)
+        self.rfc5321 = try RFC_5321.Domain(string)
         
         // Try to initialize stricter formats if possible
-        self.rfc1123 = try? RFC1123(string)
-        self.rfc1035 = try? RFC1035(string)
+        self.rfc1123 = try? RFC_1123.Domain(string)
+        self.rfc1035 = try? RFC_1035.Domain(string)
     }
     
     /// Initialize with an array of labels
     public init(labels: [String]) throws {
         try self.init(labels.joined(separator: "."))
     }
-    
+}
+
+extension Domain {    
     /// Initialize from RFC1035
-    public init(rfc1035: RFC1035) throws {
+    public init(rfc1035: RFC_1035.Domain) throws {
         self.rfc1035 = rfc1035
         self.rfc1123 = try {
-            guard let domain = try? RFC1123(rfc1035.name) else {
+            guard let domain = try? RFC_1123.Domain(rfc1035.name) else {
                 throw DomainError.conversionFailure
             }
             return domain
         }()
         self.rfc5321 = try {
-            guard let domain = try? RFC5321(rfc1035.name) else {
+            guard let domain = try? RFC_5321.Domain(rfc1035.name) else {
                 throw DomainError.conversionFailure
             }
             return domain
@@ -45,21 +50,21 @@ public struct Domain: Hashable, Sendable {
     }
     
     /// Initialize from RFC1123
-    public init(rfc1123: RFC1123) throws {
+    public init(rfc1123: RFC_1123.Domain) throws {
         self.rfc1035 = nil  // RFC1123 may not be RFC1035 compliant
         self.rfc1123 = rfc1123
         self.rfc5321 = try {
-            guard let domain = try? RFC5321(rfc1123.name) else {
+            guard let domain = try? RFC_5321.Domain(rfc1123.name) else {
                 throw DomainError.conversionFailure
             }
             return domain
         }()
     }
     
-    /// Initialize from RFC5321
-    public init(rfc5321: RFC5321) {
-        self.rfc1035 = nil  // RFC5321 may not be RFC1035 compliant
-        self.rfc1123 = nil  // RFC5321 may not be RFC1123 compliant
+    /// Initialize from RFC_5321.Domain
+    public init(rfc5321: RFC_5321.Domain) {
+        self.rfc1035 = nil  // RFC_5321.Domain may not be RFC1035 compliant
+        self.rfc1123 = nil  // RFC_5321.Domain may not be RFC1123 compliant
         self.rfc5321 = rfc5321
     }
 }
@@ -86,10 +91,10 @@ extension Domain {
         rfc1123 != nil
     }
     
-    /// Returns true if this is an IP address literal
-    public var isAddressLiteral: Bool {
-        rfc5321.isAddressLiteral
-    }
+//    /// Returns true if this is an IP address literal
+//    public var isAddressLiteral: Bool {
+//        rfc5321.isAddressLiteral
+//    }
 }
 
 // MARK: - Domain Operations
@@ -103,7 +108,7 @@ extension Domain {
         if let myRFC1123 = rfc1123, let parentRFC1123 = parent.rfc1123 {
             return myRFC1123.isSubdomain(of: parentRFC1123)
         }
-        return false  // Can't determine subdomain relationship for RFC5321 address literals
+        return false  // Can't determine subdomain relationship for RFC_5321.Domain address literals
     }
     
     /// Creates a subdomain by prepending new labels

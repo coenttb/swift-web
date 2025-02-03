@@ -7,12 +7,15 @@
 
 import Foundation
 import Domain
+import RFC_5321
+import RFC_5322
+import RFC_6531
 
 /// An email address that can be represented according to different RFC standards
 public struct EmailAddress: Hashable, Sendable {
-    let rfc5321: RFC5321?
-    let rfc5322: RFC5322?
-    let rfc6531: RFC6531
+    let rfc5321: RFC_5321.EmailAddress?
+    let rfc5322: RFC_5322.EmailAddress?
+    let rfc6531: RFC_6531.EmailAddress
     
     /// The display name associated with this email address, if any
     public let displayName: String?
@@ -26,11 +29,11 @@ public struct EmailAddress: Hashable, Sendable {
         _ string: String
     ) throws {
         // RFC 6531 is required as it's our most permissive format
-        let rfc6531Address = try RFC6531(string)
+        let rfc6531Address = try RFC_6531.EmailAddress(string)
         
         // If a display name was provided, update the RFC6531 instance
         if let displayName = displayName {
-            self.rfc6531 = RFC6531(
+            self.rfc6531 = RFC_6531.EmailAddress(
                 displayName: displayName,
                 localPart: rfc6531Address.localPart,
                 domain: rfc6531Address.domain
@@ -41,16 +44,16 @@ public struct EmailAddress: Hashable, Sendable {
         
         // Try to initialize stricter formats if possible
         if rfc6531.isASCII {
-            self.rfc5322 = try? RFC5322(
+            self.rfc5322 = try? RFC_5322.EmailAddress(
                 displayName: displayName ?? rfc6531.displayName,
                 localPart: .init(rfc6531.localPart.stringValue),
                 domain: rfc6531.domain
             )
             
-            self.rfc5321 = try? RFC5321(
+            self.rfc5321 = try? RFC_5321.EmailAddress(
                 displayName: displayName ?? rfc6531.displayName,
                 localPart: .init(rfc6531.localPart.stringValue),
-                domain: .init(domain: rfc6531.domain)
+                domain: rfc6531.domain
             )
         } else {
             self.rfc5322 = nil
@@ -69,15 +72,15 @@ public struct EmailAddress: Hashable, Sendable {
     }
     
     /// Initialize from RFC5321
-    public init(rfc5321: RFC5321) throws {
+    public init(rfc5321: RFC_5321.EmailAddress) throws {
         self.rfc5321 = rfc5321
-        self.rfc5322 = try? RFC5322(
+        self.rfc5322 = try? RFC_5322.EmailAddress(
             displayName: rfc5321.displayName,
             localPart: .init(rfc5321.localPart.stringValue),
             domain: .init(rfc5321.domain.name)
         )
         self.rfc6531 = try {
-            guard let email = try? RFC6531(
+            guard let email = try? RFC_6531.EmailAddress(
                 displayName: rfc5321.displayName,
                 localPart: .init(rfc5321.localPart.stringValue),
                 domain: .init(rfc5321.domain.name)
@@ -90,11 +93,11 @@ public struct EmailAddress: Hashable, Sendable {
     }
     
     /// Initialize from RFC5322
-    public init(rfc5322: RFC5322) throws {
+    public init(rfc5322: RFC_5322.EmailAddress) throws {
         self.rfc5321 = try? rfc5322.toRFC5321()
         self.rfc5322 = rfc5322
         self.rfc6531 = try {
-            guard let email = try? RFC6531(
+            guard let email = try? RFC_6531.EmailAddress(
                 displayName: rfc5322.displayName,
                 localPart: .init(rfc5322.localPart.stringValue),
                 domain: rfc5322.domain
@@ -107,7 +110,7 @@ public struct EmailAddress: Hashable, Sendable {
     }
     
     /// Initialize from RFC6531
-    public init(rfc6531: RFC6531) {
+    public init(rfc6531: RFC_6531.EmailAddress) {
         self.rfc5321 = try? rfc6531.toRFC5321()
         self.rfc5322 = try? rfc6531.toRFC5322()
         self.rfc6531 = rfc6531
@@ -135,14 +138,15 @@ extension EmailAddress {
     }
     
     /// The domain part (after @)
+    /// The domain part (after @)
     public var domain: Domain {
         if let domain = rfc5321?.domain {
-            return Domain(rfc5321: domain)
+            return Domain(rfc5321: domain)  // Use labeled parameter
         }
         if let domain = rfc5322?.domain {
-            return try! Domain(rfc1123: domain)
+            return try! Domain(rfc1123: domain)  // Use labeled parameter
         }
-        return try! Domain(rfc1123: rfc6531.domain)
+        return try! Domain(rfc1123: rfc6531.domain)  // Use labeled parameter
     }
     
     /// Returns true if this is an ASCII-only email address
@@ -153,11 +157,6 @@ extension EmailAddress {
     /// Returns true if this is an internationalized email address
     public var isInternationalized: Bool {
         !isASCII
-    }
-    
-    /// Returns true if this uses an IP address literal
-    public var hasIPLiteral: Bool {
-        rfc5321?.domain.isAddressLiteral ?? false
     }
 }
 
@@ -239,5 +238,16 @@ extension String {
     /// Attempts to parse the string as an email address
     public func asEmailAddress() throws -> EmailAddress {
         try EmailAddress(self)
+    }
+}
+
+// Could add convenience initializer for common case
+extension EmailAddress {
+    public static func ascii(_ string: String) throws -> Self {
+        let email = try Self(string)
+        guard email.isASCII else {
+            throw EmailAddressError.invalidFormat(description: "Must be ASCII-only")
+        }
+        return email
     }
 }
