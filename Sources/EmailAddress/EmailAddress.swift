@@ -136,17 +136,20 @@ extension EmailAddress {
         rfc5322?.localPart.stringValue ??
         rfc6531.localPart.stringValue
     }
-    
+}
+
+import Domain
+public typealias DomainTypealias = Domain
+extension EmailAddress {
     /// The domain part (after @)
-    /// The domain part (after @)
-    public var domain: Domain {
+    public var domain: _Domain {
         if let domain = rfc5321?.domain {
-            return Domain(rfc5321: domain)  // Use labeled parameter
+            return .init(rfc5321: domain)
         }
         if let domain = rfc5322?.domain {
-            return try! Domain(rfc1123: domain)  // Use labeled parameter
+            return try! .init(rfc1123: domain)
         }
-        return try! Domain(rfc1123: rfc6531.domain)  // Use labeled parameter
+        return try! .init(rfc1123: rfc6531.domain)
     }
     
     /// Returns true if this is an ASCII-only email address

@@ -10,7 +10,7 @@ import RFC_1123
 import RFC_5321
 
 /// A domain name that can be represented according to different RFC standards
-public struct Domain: Hashable, Sendable {
+public struct _Domain: Hashable, Sendable {
     let rfc1035: RFC_1035.Domain?
     let rfc1123: RFC_1123.Domain?
     let rfc5321: RFC_5321.Domain
@@ -30,6 +30,8 @@ public struct Domain: Hashable, Sendable {
         try self.init(labels.joined(separator: "."))
     }
 }
+
+public typealias Domain = _Domain
 
 extension Domain {    
     /// Initialize from RFC1035

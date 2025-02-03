@@ -16,5 +16,5 @@
 @_exported import UrlFormCoding
 @_exported import UrlFormEncoding
 @_exported import URLRouting
-@_exported import RFC2822
+@_exported import Web_Date
 @_exported import UnixEpoch
