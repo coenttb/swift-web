@@ -1,5 +1,5 @@
 {
-  "originHash" : "fa3dfc2a07b005c42027936e30f1b99389471ae0577c77f44c54bfe62d645144",
+  "originHash" : "a9612abedcb9cbb010018b1927502c852e6aa671bbd6df68ef66c623cd0ecd57",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -142,7 +142,7 @@
       "location" : "https://github.com/coenttb/swift-web-standards",
       "state" : {
         "branch" : "main",
-        "revision" : "7d68e4e8b99aef6e0e1479c2c4f04b54d6782c36"
+        "revision" : "06c08d7b6b6f86a8db2cf4ec8b02c42162f3045e"
       }
     },
     {
