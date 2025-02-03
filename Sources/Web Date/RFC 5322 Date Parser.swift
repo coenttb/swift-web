@@ -8,7 +8,7 @@
 import Foundation
 import Parsing
 import URLRouting
-@_exported import enum RFC_5322.Date
+@_exported import RFC_5322
 
 extension RFC_5322.Date {
     public struct Parser: ParserPrinter {
