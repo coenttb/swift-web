@@ -1,14 +1,5 @@
-//
-//  File.swift
-//  swift-web
-//
-//  Created by Coen ten Thije Boonkkamp on 05/01/2025.
-//
-
 import Foundation
 
-
-// x-www-form-urlencoded
 public final class UrlFormEncoder: Encoder {
     private var container: Container?
     public private(set) var codingPath: [CodingKey] = []
@@ -120,90 +111,6 @@ public final class UrlFormEncoder: Encoder {
             self.encoder.container = .keyed(container)
         }
         
-        mutating func encode(_ value: Bool, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(value ? "true" : "false")
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: Int, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: Int8, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: Int16, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: Int32, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: Int64, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: UInt, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: UInt8, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: UInt16, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: UInt32, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: UInt64, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: Float, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: Double, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(String(value))
-            self.encoder.container = .keyed(container)
-        }
-        
-        mutating func encode(_ value: String, forKey key: Key) throws {
-            var container = self.encoder.container?.params ?? [:]
-            container[key.stringValue] = .singleValue(value)
-            self.encoder.container = .keyed(container)
-        }
-        
         mutating func encode<T>(_ value: T, forKey key: Key) throws where T: Encodable {
             self.encoder.codingPath.append(key)
             defer { self.encoder.codingPath.removeLast() }
@@ -247,6 +154,7 @@ public final class UrlFormEncoder: Encoder {
         var codingPath: [CodingKey] {
             return self.encoder.codingPath
         }
+        
         var count: Int {
             return self.encoder.container?.values?.count ?? 0
         }
@@ -258,90 +166,6 @@ public final class UrlFormEncoder: Encoder {
         mutating func encodeNil() throws {
             var values = self.encoder.container?.values ?? []
             values.append(.singleValue(""))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: Bool) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(value ? "true" : "false"))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: Int) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: Int8) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: Int16) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: Int32) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: Int64) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: UInt) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: UInt8) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: UInt16) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: UInt32) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: UInt64) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: Float) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: Double) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(String(value)))
-            self.encoder.container = .unkeyed(values)
-        }
-        
-        mutating func encode(_ value: String) throws {
-            var values = self.encoder.container?.values ?? []
-            values.append(.singleValue(value))
             self.encoder.container = .unkeyed(values)
         }
         
@@ -371,12 +195,11 @@ public final class UrlFormEncoder: Encoder {
             fatalError("Not implemented")
         }
     }
+    
     struct SingleValueContainer: SingleValueEncodingContainer {
         private let encoder: UrlFormEncoder
         
-        var codingPath: [CodingKey] {
-            return self.encoder.codingPath
-        }
+        var codingPath: [CodingKey] = []
         
         init(encoder: UrlFormEncoder) {
             self.encoder = encoder
@@ -387,63 +210,69 @@ public final class UrlFormEncoder: Encoder {
         }
         
         mutating func encode(_ value: Bool) throws {
-            self.encoder.container = .singleValue(value ? "true" : "false")
-        }
-        
-        mutating func encode(_ value: Int) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: Int8) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: Int16) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: Int32) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: Int64) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: UInt) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: UInt8) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: UInt16) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: UInt32) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: UInt64) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: Float) throws {
-            self.encoder.container = .singleValue(String(value))
-        }
-        
-        mutating func encode(_ value: Double) throws {
-            self.encoder.container = .singleValue(String(value))
+            try encode(value ? "true" : "false")
         }
         
         mutating func encode(_ value: String) throws {
-            self.encoder.container = .singleValue(value)
+            let encoded = value.addingPercentEncoding(withAllowedCharacters: .urlQueryParamAllowed) ?? value
+            self.encoder.container = .singleValue(encoded)
         }
         
-        mutating func encode<T: Encodable>(_ value: T) throws {
-            self.encoder.container = try self.encoder.box(value)
+        mutating func encode(_ value: Double) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: Float) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: Int) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: Int8) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: Int16) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: Int32) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: Int64) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: UInt) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: UInt8) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: UInt16) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: UInt32) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode(_ value: UInt64) throws {
+            try encode(String(value))
+        }
+        
+        mutating func encode<T>(_ value: T) throws where T: Encodable {
+            if let strValue = value as? String {
+                try encode(strValue)
+            } else {
+                let encoded = String(describing: value).addingPercentEncoding(withAllowedCharacters: .urlQueryParamAllowed) ?? String(describing: value)
+                self.encoder.container = .singleValue(encoded)
+            }
         }
     }
     
@@ -499,26 +328,22 @@ public final class UrlFormEncoder: Encoder {
 private func serialize(_ container: UrlFormEncoder.Container, prefix: String = "") -> String {
     switch container {
     case let .keyed(dict):
-        return dict.map { key, value in
+        return dict.sorted(by: { $0.key < $1.key }).map { key, value in
             let newPrefix = prefix.isEmpty ? key : "\(prefix)[\(key)]"
             return serialize(value, prefix: newPrefix)
         }.joined(separator: "&")
         
     case let .unkeyed(array):
-        return array.enumerated().map { index, value in
-            // Change from "\(prefix)[]" to "\(prefix)[\(index)]"
-            let newPrefix = "\(prefix)[\(index)]"
+        return array.enumerated().map { idx, value in
+            let newPrefix = "\(prefix)[\(idx)]"
             return serialize(value, prefix: newPrefix)
         }
         .joined(separator: "&")
         
     case let .singleValue(value):
-//        let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
-        let encodedValue = value.formURLEncoded()
-        return prefix.isEmpty ? encodedValue : "\(prefix)=\(encodedValue)"
+        return prefix.isEmpty ? value : "\(prefix)=\(value)"
     }
 }
-
 
 private let iso8601DateFormatter: DateFormatter = {
     let formatter = DateFormatter()
@@ -529,29 +354,25 @@ private let iso8601DateFormatter: DateFormatter = {
     return formatter
 }()
 
-private let iso8601DateFormatterWithoutMilliseconds: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.calendar = Calendar(identifier: .iso8601)
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.timeZone = TimeZone(abbreviation: "GMT")
-    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXXXX"
-    return formatter
-}()
-
-
-extension String {
-    func formURLEncoded() -> String {
-        // Replace spaces with '+'
-        let plusReplaced = self.replacingOccurrences(of: " ", with: "+")
-        // Percent-encode the rest
-        return plusReplaced.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? plusReplaced
-    }
+extension CharacterSet {
+    public static let urlQueryParamAllowed = CharacterSet.urlQueryAllowed
+        .subtracting(.init(charactersIn: ":#[]@!$&'()*+,;="))
 }
 
 
 
+
+////
+////  File.swift
+////  swift-web
+////
+////  Created by Coen ten Thije Boonkkamp on 05/01/2025.
+////
+//
 //import Foundation
 //
+//
+//// x-www-form-urlencoded
 //public final class UrlFormEncoder: Encoder {
 //    private var container: Container?
 //    public private(set) var codingPath: [CodingKey] = []
@@ -663,6 +484,90 @@ extension String {
 //            self.encoder.container = .keyed(container)
 //        }
 //        
+//        mutating func encode(_ value: Bool, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(value ? "true" : "false")
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: Int, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: Int8, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: Int16, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: Int32, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: Int64, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: UInt, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: UInt8, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: UInt16, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: UInt32, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: UInt64, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: Float, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: Double, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(String(value))
+//            self.encoder.container = .keyed(container)
+//        }
+//        
+//        mutating func encode(_ value: String, forKey key: Key) throws {
+//            var container = self.encoder.container?.params ?? [:]
+//            container[key.stringValue] = .singleValue(value)
+//            self.encoder.container = .keyed(container)
+//        }
+//        
 //        mutating func encode<T>(_ value: T, forKey key: Key) throws where T: Encodable {
 //            self.encoder.codingPath.append(key)
 //            defer { self.encoder.codingPath.removeLast() }
@@ -706,7 +611,6 @@ extension String {
 //        var codingPath: [CodingKey] {
 //            return self.encoder.codingPath
 //        }
-//        
 //        var count: Int {
 //            return self.encoder.container?.values?.count ?? 0
 //        }
@@ -718,6 +622,90 @@ extension String {
 //        mutating func encodeNil() throws {
 //            var values = self.encoder.container?.values ?? []
 //            values.append(.singleValue(""))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: Bool) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(value ? "true" : "false"))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: Int) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: Int8) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: Int16) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: Int32) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: Int64) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: UInt) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: UInt8) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: UInt16) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: UInt32) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: UInt64) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: Float) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: Double) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(String(value)))
+//            self.encoder.container = .unkeyed(values)
+//        }
+//        
+//        mutating func encode(_ value: String) throws {
+//            var values = self.encoder.container?.values ?? []
+//            values.append(.singleValue(value))
 //            self.encoder.container = .unkeyed(values)
 //        }
 //        
@@ -747,11 +735,12 @@ extension String {
 //            fatalError("Not implemented")
 //        }
 //    }
-//    
 //    struct SingleValueContainer: SingleValueEncodingContainer {
 //        private let encoder: UrlFormEncoder
 //        
-//        var codingPath: [CodingKey] = []
+//        var codingPath: [CodingKey] {
+//            return self.encoder.codingPath
+//        }
 //        
 //        init(encoder: UrlFormEncoder) {
 //            self.encoder = encoder
@@ -762,69 +751,63 @@ extension String {
 //        }
 //        
 //        mutating func encode(_ value: Bool) throws {
-//            try encode(value ? "true" : "false")
-//        }
-//        
-//        mutating func encode(_ value: String) throws {
-//            let encoded = value.addingPercentEncoding(withAllowedCharacters: .urlQueryParamAllowed) ?? value
-//            self.encoder.container = .singleValue(encoded)
-//        }
-//        
-//        mutating func encode(_ value: Double) throws {
-//            try encode(String(value))
-//        }
-//        
-//        mutating func encode(_ value: Float) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(value ? "true" : "false")
 //        }
 //        
 //        mutating func encode(_ value: Int) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(String(value))
 //        }
 //        
 //        mutating func encode(_ value: Int8) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(String(value))
 //        }
 //        
 //        mutating func encode(_ value: Int16) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(String(value))
 //        }
 //        
 //        mutating func encode(_ value: Int32) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(String(value))
 //        }
 //        
 //        mutating func encode(_ value: Int64) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(String(value))
 //        }
 //        
 //        mutating func encode(_ value: UInt) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(String(value))
 //        }
 //        
 //        mutating func encode(_ value: UInt8) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(String(value))
 //        }
 //        
 //        mutating func encode(_ value: UInt16) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(String(value))
 //        }
 //        
 //        mutating func encode(_ value: UInt32) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(String(value))
 //        }
 //        
 //        mutating func encode(_ value: UInt64) throws {
-//            try encode(String(value))
+//            self.encoder.container = .singleValue(String(value))
 //        }
 //        
-//        mutating func encode<T>(_ value: T) throws where T: Encodable {
-//            if let strValue = value as? String {
-//                try encode(strValue)
-//            } else {
-//                let encoded = String(describing: value).addingPercentEncoding(withAllowedCharacters: .urlQueryParamAllowed) ?? String(describing: value)
-//                self.encoder.container = .singleValue(encoded)
-//            }
+//        mutating func encode(_ value: Float) throws {
+//            self.encoder.container = .singleValue(String(value))
+//        }
+//        
+//        mutating func encode(_ value: Double) throws {
+//            self.encoder.container = .singleValue(String(value))
+//        }
+//        
+//        mutating func encode(_ value: String) throws {
+//            self.encoder.container = .singleValue(value)
+//        }
+//        
+//        mutating func encode<T: Encodable>(_ value: T) throws {
+//            self.encoder.container = try self.encoder.box(value)
 //        }
 //    }
 //    
@@ -880,22 +863,26 @@ extension String {
 //private func serialize(_ container: UrlFormEncoder.Container, prefix: String = "") -> String {
 //    switch container {
 //    case let .keyed(dict):
-//        return dict.sorted(by: { $0.key < $1.key }).map { key, value in
+//        return dict.map { key, value in
 //            let newPrefix = prefix.isEmpty ? key : "\(prefix)[\(key)]"
 //            return serialize(value, prefix: newPrefix)
 //        }.joined(separator: "&")
 //        
 //    case let .unkeyed(array):
-//        return array.enumerated().map { idx, value in
-//            let newPrefix = "\(prefix)[\(idx)]"
+//        return array.enumerated().map { index, value in
+//            // Change from "\(prefix)[]" to "\(prefix)[\(index)]"
+//            let newPrefix = "\(prefix)[\(index)]"
 //            return serialize(value, prefix: newPrefix)
 //        }
 //        .joined(separator: "&")
 //        
 //    case let .singleValue(value):
-//        return prefix.isEmpty ? value : "\(prefix)=\(value)"
+////        let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
+//        let encodedValue = value.formURLEncoded()
+//        return prefix.isEmpty ? encodedValue : "\(prefix)=\(encodedValue)"
 //    }
 //}
+//
 //
 //private let iso8601DateFormatter: DateFormatter = {
 //    let formatter = DateFormatter()
@@ -906,7 +893,21 @@ extension String {
 //    return formatter
 //}()
 //
-//extension CharacterSet {
-//    public static let urlQueryParamAllowed = CharacterSet.urlQueryAllowed
-//        .subtracting(.init(charactersIn: ":#[]@!$&'()*+,;="))
+//private let iso8601DateFormatterWithoutMilliseconds: DateFormatter = {
+//    let formatter = DateFormatter()
+//    formatter.calendar = Calendar(identifier: .iso8601)
+//    formatter.locale = Locale(identifier: "en_US_POSIX")
+//    formatter.timeZone = TimeZone(abbreviation: "GMT")
+//    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXXXX"
+//    return formatter
+//}()
+//
+//
+//extension String {
+//    func formURLEncoded() -> String {
+//        // Replace spaces with '+'
+//        let plusReplaced = self.replacingOccurrences(of: " ", with: "+")
+//        // Percent-encode the rest
+//        return plusReplaced.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? plusReplaced
+//    }
 //}
