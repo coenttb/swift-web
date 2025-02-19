@@ -3,11 +3,11 @@ import UrlFormEncoding
 import URLRouting
 
 extension UrlFormDecoder {
-    @MainActor public static let `default`: UrlFormDecoder = {
+    public static var `default`: UrlFormDecoder {
         let decoder = UrlFormDecoder()
         decoder.parsingStrategy = .bracketsWithIndices
         return decoder
-    }()
+    }
 }
 
 extension DateFormatter {
