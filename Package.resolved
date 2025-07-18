@@ -1,5 +1,5 @@
 {
-  "originHash" : "a9612abedcb9cbb010018b1927502c852e6aa671bbd6df68ef66c623cd0ecd57",
+  "originHash" : "3430022970baa519973dfd5dc14ddecd5afac140f042f8c82b3772f49fdbea07",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -16,7 +16,7 @@
       "location" : "https://github.com/coenttb/pointfree-html.git",
       "state" : {
         "branch" : "main",
-        "revision" : "bbbf17aadf6d7028ec0e18fae3e3c056a6032048"
+        "revision" : "8df71866c8ee813d71dee438d11ade8d4c2b5318"
       }
     },
     {
@@ -70,7 +70,7 @@
       "location" : "https://github.com/coenttb/swift-css-types.git",
       "state" : {
         "branch" : "main",
-        "revision" : "dccd721ab7dee289ef442899241439ed095f2acb"
+        "revision" : "449dc90150c1d567700f18d3997932c8fec6146d"
       }
     },
     {
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies.git",
       "state" : {
-        "branch" : "1.9.0",
-        "revision" : "4e6b6a814675daf2c1973514314283448f95f941"
+        "revision" : "4c90d6b2b9bf0911af87b103bb40f41771891596",
+        "version" : "1.9.2"
       }
     },
     {
@@ -106,7 +106,7 @@
       "location" : "https://github.com/coenttb/swift-html",
       "state" : {
         "branch" : "main",
-        "revision" : "322a4d3c179480ff980b2708bc85a0a6def38bdc"
+        "revision" : "b4d176bc9432403f6509d3475f4be9fe79023a96"
       }
     },
     {
@@ -115,7 +115,7 @@
       "location" : "https://github.com/coenttb/swift-html-css-pointfree.git",
       "state" : {
         "branch" : "main",
-        "revision" : "69b1f25dcc1a4ca93c43339b90cbe1fce78ffb8b"
+        "revision" : "4b16ab9e7a971526e4f691fddcccef04a5cb6b9c"
       }
     },
     {
@@ -124,7 +124,7 @@
       "location" : "https://github.com/coenttb/swift-html-types.git",
       "state" : {
         "branch" : "main",
-        "revision" : "304e2093b0bc31b3aaa258d3521bb612cb65f1b7"
+        "revision" : "161e58bc2740f990027d05f701f480f58a3f17ae"
       }
     },
     {
