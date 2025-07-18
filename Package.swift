@@ -53,7 +53,7 @@ extension [Package.Dependency] {
             .package(url: "https://github.com/coenttb/swift-web-standards", branch: "main"),
             .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.1.5"),
             .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.6.0"),
-            .package(url: "https://github.com/pointfreeco/swift-parsing.git", branch: "main"),
+            .package(url: "https://github.com/pointfreeco/swift-parsing.git", branch: "main")
         ]
     }
 }
@@ -75,7 +75,7 @@ let package = Package(
                 .favicon,
                 .sitemap,
                 .urlFormCoding,
-                .emailAddress,
+                .emailAddress
             ]
         ),
         .library(name: .domain, targets: [.domain]),
@@ -84,7 +84,7 @@ let package = Package(
         .library(name: .sitemap, targets: [.sitemap]),
         .library(name: .urlFormCoding, targets: [.urlFormCoding]),
         .library(name: .webDate, targets: [.webDate]),
-        .library(name: .unixEpoch, targets: [.unixEpoch]),
+        .library(name: .unixEpoch, targets: [.unixEpoch])
     ],
     dependencies: .default,
     targets: [
@@ -93,8 +93,8 @@ let package = Package(
             dependencies: [
                 .rfc1035,
                 .rfc1123,
-                .rfc5321,
-                
+                .rfc5321
+
             ]
         ),
         .testTarget(
@@ -109,7 +109,7 @@ let package = Package(
                 .domain,
                 .rfc5321,
                 .rfc5322,
-                .rfc6531,
+                .rfc6531
             ]
         ),
         .testTarget(
@@ -129,7 +129,7 @@ let package = Package(
             name: .unixEpoch,
             dependencies: [
                 .parsing,
-                .urlRouting,
+                .urlRouting
             ]
         ),
         .testTarget(
@@ -144,7 +144,7 @@ let package = Package(
                 .rfc2822,
                 .rfc5322,
                 .parsing,
-                .urlRouting,
+                .urlRouting
             ]
         ),
         .testTarget(
@@ -183,7 +183,7 @@ let package = Package(
                 .sitemap,
                 .urlFormCoding,
                 .mediaType,
-                .unixEpoch,
+                .unixEpoch
             ]
         )
     ],

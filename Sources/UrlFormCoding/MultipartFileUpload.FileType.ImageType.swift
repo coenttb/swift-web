@@ -5,9 +5,9 @@
 //  Created by Coen ten Thije Boonkkamp on 29/12/2024.
 //
 
-import URLRouting
-import Parsing
 import Foundation
+import Parsing
+import URLRouting
 
 extension MultipartFileUpload.FileType.ImageType {
     nonisolated(unsafe)
@@ -23,7 +23,7 @@ extension MultipartFileUpload.FileType.ImageType {
             )
         }
     }
-    
+
     nonisolated(unsafe)
     public static let png = Self(
         contentType: "image/png",
@@ -37,7 +37,7 @@ extension MultipartFileUpload.FileType.ImageType {
             )
         }
     }
-    
+
     nonisolated(unsafe)
     public static let gif = Self(
         contentType: "image/gif",
@@ -52,7 +52,7 @@ extension MultipartFileUpload.FileType.ImageType {
             )
         }
     }
-    
+
     nonisolated(unsafe)
     public static let webp = Self(
         contentType: "image/webp",
@@ -68,7 +68,7 @@ extension MultipartFileUpload.FileType.ImageType {
             )
         }
     }
-    
+
     nonisolated(unsafe)
     public static let tiff = Self(
         contentType: "image/tiff",
@@ -84,7 +84,7 @@ extension MultipartFileUpload.FileType.ImageType {
             )
         }
     }
-    
+
     nonisolated(unsafe)
     public static let bmp = Self(
         contentType: "image/bmp",
@@ -98,7 +98,7 @@ extension MultipartFileUpload.FileType.ImageType {
             )
         }
     }
-    
+
     nonisolated(unsafe)
     public static let heic = Self(
         contentType: "image/heic",
@@ -117,7 +117,7 @@ extension MultipartFileUpload.FileType.ImageType {
             )
         }
     }
-    
+
     nonisolated(unsafe)
     public static let avif = Self(
         contentType: "image/avif",

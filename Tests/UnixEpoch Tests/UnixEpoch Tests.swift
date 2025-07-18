@@ -5,8 +5,8 @@
 //  Created by Coen ten Thije Boonkkamp on 26/12/2024.
 //
 
-import Testing
 import Foundation
+import Testing
 @testable import UnixEpoch
 
 @Suite("UnixEpoch Date Tests")
@@ -19,7 +19,7 @@ struct UnixEpochDateFormatterTests {
         // Because Parser is defined as a ParserPrinter<Substring, Date>,
         // we need to convert the string to a Substring before parsing.
         let parsedDate = try Date.UnixEpoch.Parser().parse(epochString[...])
-        
+
         #expect(parsedDate == expectedDate, "Parsed date does not match the expected date.")
     }
 
@@ -30,7 +30,7 @@ struct UnixEpochDateFormatterTests {
 
         // Printing is the inverse of parsing: Date -> String
         let epochString = try Date.UnixEpoch.Parser().print(date)
-        
+
         #expect(epochString == expectedEpochString, "Formatted epoch string does not match expected.")
     }
 
@@ -39,16 +39,16 @@ struct UnixEpochDateFormatterTests {
         let invalidEpochString = "InvalidEpoch"
 
         #expect(throws: Error.self) {
-            let _ = try Date.UnixEpoch.Parser().parse(invalidEpochString[...])
+            _ = try Date.UnixEpoch.Parser().parse(invalidEpochString[...])
         }
-        
+
     }
 
     @Test("Parses and prints round trip correctly")
     func testRoundTrip() throws {
         let originalDate = Date(timeIntervalSince1970: 1672531200) // Some known timestamp
         let parser = Date.UnixEpoch.Parser()
-        
+
         let epochString = try parser.print(originalDate)
         let roundTrippedDate = try parser.parse(epochString[...])
 

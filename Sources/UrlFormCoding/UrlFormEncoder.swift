@@ -6,26 +6,26 @@ public final class UrlFormEncoder: Encoder {
     public var dataEncodingStrategy: DataEncodingStrategy = .deferredToData
     public var dateEncodingStrategy: DateEncodingStrategy = .deferredToDate
     public let userInfo: [CodingUserInfoKey: Any] = [:]
-    
+
     public init() {}
-    
+
     public func encode<T: Encodable>(_ value: T) throws -> Data {
         try value.encode(to: self)
         guard let container = self.container else {
             throw Error.encodingError("No container found", self.codingPath)
         }
-        
+
         let queryString = serialize(container)
         return Data(queryString.utf8)
     }
-    
+
     private func box<T: Encodable>(_ value: T) throws -> Container {
         if let date = value as? Date {
             return try self.box(date)
         } else if let data = value as? Data {
             return try self.box(data)
         }
-        
+
         let encoder = UrlFormEncoder()
         try value.encode(to: encoder)
         guard let container = encoder.container else {
@@ -33,7 +33,7 @@ public final class UrlFormEncoder: Encoder {
         }
         return container
     }
-    
+
     private func box(_ date: Date) throws -> Container {
         switch self.dateEncodingStrategy {
         case .deferredToDate:
@@ -55,7 +55,7 @@ public final class UrlFormEncoder: Encoder {
             return .singleValue(strategy(date))
         }
     }
-    
+
     private func box(_ data: Data) throws -> Container {
         switch self.dataEncodingStrategy {
         case .deferredToData:
@@ -71,46 +71,46 @@ public final class UrlFormEncoder: Encoder {
             return .singleValue(strategy(data))
         }
     }
-    
+
     public func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key: CodingKey {
         let container = KeyedContainer<Key>(encoder: self)
         self.container = .keyed([:])
         return KeyedEncodingContainer(container)
     }
-    
+
     public func unkeyedContainer() -> UnkeyedEncodingContainer {
         let container = UnkeyedContainer(encoder: self)
         self.container = .unkeyed([])
         return container
     }
-    
+
     public func singleValueContainer() -> SingleValueEncodingContainer {
         let container = SingleValueContainer(encoder: self)
         self.container = nil
         return container
     }
-    
+
     public enum Error: Swift.Error {
         case encodingError(String, [CodingKey])
     }
-    
+
     struct KeyedContainer<Key: CodingKey>: KeyedEncodingContainerProtocol {
         private let encoder: UrlFormEncoder
-        
+
         var codingPath: [CodingKey] {
             return self.encoder.codingPath
         }
-        
+
         init(encoder: UrlFormEncoder) {
             self.encoder = encoder
         }
-        
+
         mutating func encodeNil(forKey key: Key) throws {
             var container = self.encoder.container?.params ?? [:]
             container[key.stringValue] = .singleValue("")
             self.encoder.container = .keyed(container)
         }
-        
+
         mutating func encode<T>(_ value: T, forKey key: Key) throws where T: Encodable {
             self.encoder.codingPath.append(key)
             defer { self.encoder.codingPath.removeLast() }
@@ -118,7 +118,7 @@ public final class UrlFormEncoder: Encoder {
             container[key.stringValue] = try self.encoder.box(value)
             self.encoder.container = .keyed(container)
         }
-        
+
         mutating func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey: CodingKey {
             self.encoder.codingPath.append(key)
             defer { self.encoder.codingPath.removeLast() }
@@ -128,7 +128,7 @@ public final class UrlFormEncoder: Encoder {
             self.encoder.container = .keyed(params)
             return KeyedEncodingContainer(container)
         }
-        
+
         mutating func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
             self.encoder.codingPath.append(key)
             defer { self.encoder.codingPath.removeLast() }
@@ -138,43 +138,43 @@ public final class UrlFormEncoder: Encoder {
             self.encoder.container = .keyed(params)
             return container
         }
-        
+
         mutating func superEncoder() -> Encoder {
             fatalError("Not implemented")
         }
-        
+
         mutating func superEncoder(forKey key: Key) -> Encoder {
             fatalError("Not implemented")
         }
     }
-    
+
     struct UnkeyedContainer: UnkeyedEncodingContainer {
         private let encoder: UrlFormEncoder
-        
+
         var codingPath: [CodingKey] {
             return self.encoder.codingPath
         }
-        
+
         var count: Int {
             return self.encoder.container?.values?.count ?? 0
         }
-        
+
         init(encoder: UrlFormEncoder) {
             self.encoder = encoder
         }
-        
+
         mutating func encodeNil() throws {
             var values = self.encoder.container?.values ?? []
             values.append(.singleValue(""))
             self.encoder.container = .unkeyed(values)
         }
-        
+
         mutating func encode<T>(_ value: T) throws where T: Encodable {
             var values = self.encoder.container?.values ?? []
             values.append(try self.encoder.box(value))
             self.encoder.container = .unkeyed(values)
         }
-        
+
         mutating func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey: CodingKey {
             let container = KeyedContainer<NestedKey>(encoder: self.encoder)
             var values = self.encoder.container?.values ?? []
@@ -182,7 +182,7 @@ public final class UrlFormEncoder: Encoder {
             self.encoder.container = .unkeyed(values)
             return KeyedEncodingContainer(container)
         }
-        
+
         mutating func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
             let container = UnkeyedContainer(encoder: self.encoder)
             var values = self.encoder.container?.values ?? []
@@ -190,82 +190,82 @@ public final class UrlFormEncoder: Encoder {
             self.encoder.container = .unkeyed(values)
             return container
         }
-        
+
         mutating func superEncoder() -> Encoder {
             fatalError("Not implemented")
         }
     }
-    
+
     struct SingleValueContainer: SingleValueEncodingContainer {
         private let encoder: UrlFormEncoder
-        
+
         var codingPath: [CodingKey] = []
-        
+
         init(encoder: UrlFormEncoder) {
             self.encoder = encoder
         }
-        
+
         mutating func encodeNil() throws {
             self.encoder.container = .singleValue("")
         }
-        
+
         mutating func encode(_ value: Bool) throws {
             try encode(value ? "true" : "false")
         }
-        
+
         mutating func encode(_ value: String) throws {
             let encoded = value.addingPercentEncoding(withAllowedCharacters: .urlQueryParamAllowed) ?? value
             self.encoder.container = .singleValue(encoded)
         }
-        
+
         mutating func encode(_ value: Double) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: Float) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: Int) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: Int8) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: Int16) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: Int32) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: Int64) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: UInt) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: UInt8) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: UInt16) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: UInt32) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode(_ value: UInt64) throws {
             try encode(String(value))
         }
-        
+
         mutating func encode<T>(_ value: T) throws where T: Encodable {
             if let strValue = value as? String {
                 try encode(strValue)
@@ -275,13 +275,13 @@ public final class UrlFormEncoder: Encoder {
             }
         }
     }
-    
+
     public enum DataEncodingStrategy {
         case deferredToData
         case base64
         case custom((Data) -> String)
     }
-    
+
     public enum DateEncodingStrategy {
         case deferredToDate
         case secondsSince1970
@@ -290,12 +290,12 @@ public final class UrlFormEncoder: Encoder {
         case formatted(DateFormatter)
         case custom((Date) -> String)
     }
-    
+
     public enum Container {
         indirect case keyed([String: Container])
         indirect case unkeyed([Container])
         case singleValue(String)
-        
+
         var params: [String: Container]? {
             switch self {
             case let .keyed(params):
@@ -304,7 +304,7 @@ public final class UrlFormEncoder: Encoder {
                 return nil
             }
         }
-        
+
         var values: [Container]? {
             switch self {
             case let .unkeyed(values):
@@ -313,7 +313,7 @@ public final class UrlFormEncoder: Encoder {
                 return nil
             }
         }
-        
+
         var value: String? {
             switch self {
             case let .singleValue(value):
@@ -332,14 +332,14 @@ private func serialize(_ container: UrlFormEncoder.Container, prefix: String = "
             let newPrefix = prefix.isEmpty ? key : "\(prefix)[\(key)]"
             return serialize(value, prefix: newPrefix)
         }.joined(separator: "&")
-        
+
     case let .unkeyed(array):
         return array.enumerated().map { idx, value in
             let newPrefix = "\(prefix)[\(idx)]"
             return serialize(value, prefix: newPrefix)
         }
         .joined(separator: "&")
-        
+
     case let .singleValue(value):
         return prefix.isEmpty ? value : "\(prefix)=\(value)"
     }
@@ -359,9 +359,6 @@ extension CharacterSet {
         .subtracting(.init(charactersIn: ":#[]@!$&'()*+,;="))
 }
 
-
-
-
 ////
 ////  File.swift
 ////  swift-web
@@ -369,11 +366,11 @@ extension CharacterSet {
 ////  Created by Coen ten Thije Boonkkamp on 05/01/2025.
 ////
 //
-//import Foundation
+// import Foundation
 //
 //
 //// x-www-form-urlencoded
-//public final class UrlFormEncoder: Encoder {
+// public final class UrlFormEncoder: Encoder {
 //    private var container: Container?
 //    public private(set) var codingPath: [CodingKey] = []
 //    public var dataEncodingStrategy: DataEncodingStrategy = .deferredToData
@@ -858,9 +855,9 @@ extension CharacterSet {
 //            }
 //        }
 //    }
-//}
+// }
 //
-//private func serialize(_ container: UrlFormEncoder.Container, prefix: String = "") -> String {
+// private func serialize(_ container: UrlFormEncoder.Container, prefix: String = "") -> String {
 //    switch container {
 //    case let .keyed(dict):
 //        return dict.map { key, value in
@@ -881,33 +878,33 @@ extension CharacterSet {
 //        let encodedValue = value.formURLEncoded()
 //        return prefix.isEmpty ? encodedValue : "\(prefix)=\(encodedValue)"
 //    }
-//}
+// }
 //
 //
-//private let iso8601DateFormatter: DateFormatter = {
+// private let iso8601DateFormatter: DateFormatter = {
 //    let formatter = DateFormatter()
 //    formatter.calendar = Calendar(identifier: .iso8601)
 //    formatter.locale = Locale(identifier: "en_US_POSIX")
 //    formatter.timeZone = TimeZone(abbreviation: "GMT")
 //    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
 //    return formatter
-//}()
+// }()
 //
-//private let iso8601DateFormatterWithoutMilliseconds: DateFormatter = {
+// private let iso8601DateFormatterWithoutMilliseconds: DateFormatter = {
 //    let formatter = DateFormatter()
 //    formatter.calendar = Calendar(identifier: .iso8601)
 //    formatter.locale = Locale(identifier: "en_US_POSIX")
 //    formatter.timeZone = TimeZone(abbreviation: "GMT")
 //    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXXXX"
 //    return formatter
-//}()
+// }()
 //
 //
-//extension String {
+// extension String {
 //    func formURLEncoded() -> String {
 //        // Replace spaces with '+'
 //        let plusReplaced = self.replacingOccurrences(of: " ", with: "+")
 //        // Percent-encode the rest
 //        return plusReplaced.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? plusReplaced
 //    }
-//}
+// }

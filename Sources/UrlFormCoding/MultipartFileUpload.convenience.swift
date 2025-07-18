@@ -5,9 +5,9 @@
 //  Created by Coen ten Thije Boonkkamp on 29/12/2024.
 //
 
-import URLRouting
-import Parsing
 import Foundation
+import Parsing
+import URLRouting
 
 extension MultipartFileUpload {
     public static func csv(
@@ -22,7 +22,7 @@ extension MultipartFileUpload {
             maxSize: maxSize
         )
     }
-    
+
     public static func pdf(
         fieldName: String = "file",
         filename: String? = nil,
@@ -35,7 +35,7 @@ extension MultipartFileUpload {
             maxSize: maxSize
         )
     }
-    
+
     public static func excel(
         fieldName: String = "file",
         filename: String? = nil,
@@ -48,7 +48,7 @@ extension MultipartFileUpload {
             maxSize: maxSize
         )
     }
-    
+
     public static func jpeg(
         fieldName: String = "file",
         filename: String? = nil,
@@ -62,5 +62,3 @@ extension MultipartFileUpload {
         )
     }
 }
-
-

@@ -12,17 +12,17 @@ public enum JWT {}
 extension JWT {
     public struct Token: Codable, Hashable, Sendable, ExpressibleByStringLiteral, ExpressibleByStringInterpolation {
         public let value: String
-        
+
         public init(
             value: String
         ) {
             self.value = value
         }
-        
+
         public enum CodingKeys: String, CodingKey {
             case value = "token"
         }
-        
+
         public init(stringLiteral value: String) {
             self = .init(value: value)
         }

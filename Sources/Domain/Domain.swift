@@ -14,17 +14,17 @@ public struct _Domain: Hashable, Sendable {
     let rfc1035: RFC_1035.Domain?
     let rfc1123: RFC_1123.Domain?
     let rfc5321: RFC_5321.Domain
-    
+
     /// Initialize with a domain string
     public init(_ string: String) throws {
         // RFC 5321 is required as it's our most permissive format
         self.rfc5321 = try RFC_5321.Domain(string)
-        
+
         // Try to initialize stricter formats if possible
         self.rfc1123 = try? RFC_1123.Domain(string)
         self.rfc1035 = try? RFC_1035.Domain(string)
     }
-    
+
     /// Initialize with an array of labels
     public init(labels: [String]) throws {
         try self.init(labels.joined(separator: "."))
@@ -33,7 +33,7 @@ public struct _Domain: Hashable, Sendable {
 
 public typealias Domain = _Domain
 
-extension Domain {    
+extension Domain {
     /// Initialize from RFC1035
     public init(rfc1035: RFC_1035.Domain) throws {
         self.rfc1035 = rfc1035
@@ -50,7 +50,7 @@ extension Domain {
             return domain
         }()
     }
-    
+
     /// Initialize from RFC1123
     public init(rfc1123: RFC_1123.Domain) throws {
         self.rfc1035 = nil  // RFC1123 may not be RFC1035 compliant
@@ -62,7 +62,7 @@ extension Domain {
             return domain
         }()
     }
-    
+
     /// Initialize from RFC_5321.Domain
     public init(rfc5321: RFC_5321.Domain) {
         self.rfc1035 = nil  // RFC_5321.Domain may not be RFC1035 compliant
@@ -77,22 +77,22 @@ extension Domain {
     public var name: String {
         rfc1035?.name ?? rfc1123?.name ?? rfc5321.name
     }
-    
+
     /// The top-level domain if available (only for RFC1035/1123 domains)
     public var tld: String? {
         rfc1035?.tld?.stringValue ?? rfc1123?.tld?.stringValue
     }
-    
+
     /// The second-level domain if available (only for RFC1035/1123 domains)
     public var sld: String? {
         rfc1035?.sld?.stringValue ?? rfc1123?.sld?.stringValue
     }
-    
+
     /// Returns true if this is a standard domain (not an IP address)
     public var isStandardDomain: Bool {
         rfc1123 != nil
     }
-    
+
 //    /// Returns true if this is an IP address literal
 //    public var isAddressLiteral: Bool {
 //        rfc5321.isAddressLiteral
@@ -112,7 +112,7 @@ extension Domain {
         }
         return false  // Can't determine subdomain relationship for RFC_5321.Domain address literals
     }
-    
+
     /// Creates a subdomain by prepending new labels
     public func addingSubdomain(_ components: String...) throws -> Domain {
         // Use the most specific format available
@@ -124,7 +124,7 @@ extension Domain {
         }
         throw DomainError.cannotCreateSubdomain
     }
-    
+
     /// Returns the parent domain by removing the leftmost label
     public func parent() throws -> Domain? {
         // Use the most specific format available
@@ -144,7 +144,7 @@ extension Domain {
         case cannotCreateSubdomain
         case conversionFailure
         case invalidFormat(description: String)
-        
+
         public var errorDescription: String? {
             switch self {
             case .cannotCreateSubdomain:
@@ -168,7 +168,7 @@ extension Domain: Codable {
         var container = encoder.singleValueContainer()
         try container.encode(name)
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let string = try container.decode(String.self)

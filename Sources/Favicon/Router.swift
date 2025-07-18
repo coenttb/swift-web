@@ -39,7 +39,7 @@ public struct FaviconRouter: ParserPrinter {
             URLRouting.Route(.case(.png)) {
                 Path { FaviconRouter.Route.png.rawValue }
             }
-            
+
             URLRouting.Route(.case(FaviconRouter.Route.apple_touch_icon_png)) {
                 Path { FaviconRouter.Route.apple_touch_icon_png.rawValue }
             }

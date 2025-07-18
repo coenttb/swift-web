@@ -1,6 +1,6 @@
-import URLRouting
-import Parsing
 import Foundation
+import Parsing
+import URLRouting
 
 public struct MultipartFileUpload: Conversion {
     private let boundary: String
@@ -22,29 +22,29 @@ public struct MultipartFileUpload: Conversion {
         self.maxSize = maxSize
         self.boundary = Self.generateBoundary()
     }
-    
+
     private static func generateBoundary() -> String {
         let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         let randomString = (0..<15).map { _ in String(characters.randomElement()!) }.joined()
         return "Boundary-\(randomString)"  // 9 + 15 = 24 characters total
     }
-    
+
     // MARK: - Conversion Protocol Implementation
-    
+
     public func apply(_ input: Data) throws -> Data {
         try validate(input)
         return input
     }
-    
+
     public func unapply(_ data: Data) throws -> Data {
         try validate(data)
-        
+
         var body = Data()
         try appendBoundary(to: &body)
         try appendHeaders(to: &body)
         body.append(data)
         try appendClosingBoundary(to: &body)
-        
+
         return body
     }
 
@@ -52,33 +52,33 @@ public struct MultipartFileUpload: Conversion {
         guard !data.isEmpty else {
             throw MultipartError.emptyData
         }
-        
+
         guard data.count <= maxSize else {
             throw MultipartError.fileTooLarge(size: data.count, maxSize: maxSize)
         }
-        
+
         try fileType.validate(data)
     }
-    
+
     private func appendBoundary(to data: inout Data) throws {
         guard let boundaryData = "--\(boundary)\r\n".data(using: .utf8) else {
             throw MultipartError.encodingError
         }
         data.append(boundaryData)
     }
-    
+
     private func appendHeaders(to data: inout Data) throws {
         let headers = """
             Content-Disposition: form-data; name="\(fieldName)"; filename="\(filename)"
             Content-Type: \(fileType.contentType)\r\n\r\n
             """
-        
+
         guard let headerData = headers.data(using: .utf8) else {
             throw MultipartError.encodingError
         }
         data.append(headerData)
     }
-    
+
     private func appendClosingBoundary(to data: inout Data) throws {
         guard let boundaryData = "\r\n--\(boundary)--\r\n".data(using: .utf8) else {
             throw MultipartError.encodingError
@@ -98,7 +98,7 @@ extension MultipartFileUpload {
         let contentType: String
         let fileExtension: String
         let validate: (Data) throws -> Void
-        
+
         public init(
             contentType: String,
             fileExtension: String,
@@ -111,14 +111,12 @@ extension MultipartFileUpload {
     }
 }
 
-
-
 extension MultipartFileUpload.FileType {
     public struct ImageType {
         let contentType: String
         let fileExtension: String
         let validate: (Data) throws -> Void
-        
+
         public init(
             contentType: String,
             fileExtension: String,
@@ -160,6 +158,3 @@ extension MultipartFileUpload.MultipartError {
         }
     }
 }
-
-
-

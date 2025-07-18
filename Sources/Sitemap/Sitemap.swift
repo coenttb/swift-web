@@ -9,7 +9,7 @@ import Foundation
 
 public struct SiteMap {
     public let urls: [SiteMap.URL]
-    
+
     public init(urls: [SiteMap.URL]) {
         self.urls = urls
     }
@@ -30,12 +30,12 @@ extension SiteMap {
     public struct URL {
         public let location: Foundation.URL
         public let metadata: MetaData
-        
+
         public struct MetaData: Sendable {
             public let lastModification: Date?
             public let changeFrequency: SiteMap.URL.ChangeFrequency?
             public let priority: Float?
-            
+
             public  init(
                 lastModification: Date? = nil,
                 changeFrequency: SiteMap.URL.ChangeFrequency? = nil,
@@ -45,10 +45,10 @@ extension SiteMap {
                 self.changeFrequency = changeFrequency
                 self.priority = priority
             }
-            
+
             public static let empty: Self = .init(lastModification: nil, changeFrequency: nil, priority: nil)
         }
-        
+
         public init(
             location: Foundation.URL,
             lastModification: Date? = nil,
@@ -70,7 +70,7 @@ extension SiteMap.URL {
         var elements = [
             "<loc>\(location.absoluteString)</loc>"
         ]
-        
+
         if let lastModification = metadata.lastModification {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy-MM-dd"
@@ -82,7 +82,7 @@ extension SiteMap.URL {
         if let priority = metadata.priority {
             elements.append("<priority>\(priority)</priority>")
         }
-        
+
         return "<url>\n\(elements.joined(separator: "\n"))\n</url>"
     }
 }
@@ -104,10 +104,10 @@ extension [SiteMap.URL] {
         router: (_ page: Page) -> URL,
         _ dictionary: [Page: SiteMap.URL.MetaData]
     ) {
-        
+
         self = dictionary.map { (page, metadata) in
             let location = router(page)
-            
+
             return SiteMap.URL(
                 location: location,
                 lastModification: metadata.lastModification,

@@ -31,47 +31,47 @@ extension URLRouting.Field<String> {
     public static var applicationJSON: Self {
         Field.contentType { "application/json" }
     }
-    
+
     public static var json: Self {
         .applicationJSON
     }
-    
+
     public static var applicationFormURLEncoded: Self {
         Field.contentType { "application/x-www-form-urlencoded" }
     }
-    
+
     public static var formURLEncoded: Self {
         .applicationFormURLEncoded
     }
-    
+
     public static var multipartFormData: Self {
         Field.contentType { "multipart/form-data" }
     }
-    
+
     public static var textPlain: Self {
         Field.contentType { "text/plain" }
     }
-    
+
     public static var textHTML: Self {
         Field.contentType { "text/html" }
     }
-    
+
     public static var html: Self {
         .textHTML
     }
-    
+
     public static var applicationXML: Self {
         Field.contentType { "application/xml" }
     }
-    
+
     public static var xml: Self {
         .applicationXML
     }
-    
+
     public static var applicationOctetStream: Self {
         Field.contentType { "application/octet-stream" }
     }
-    
+
     public static var octetStream: Self {
         .applicationOctetStream
     }
