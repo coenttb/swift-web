@@ -23,6 +23,7 @@ extension Target.Dependency {
 
 extension Target.Dependency {
     static var emailAddress: Self { .product(name: "EmailAddress", package: "swift-emailaddress-type") }
+    static var domain: Self { .product(name: "Domain", package: "swift-domain-type") }
     static var dependencies: Self { .product(name: "Dependencies", package: "swift-dependencies") }
     static var dependenciesTestSupport: Self { .product(name: "DependenciesTestSupport", package: "swift-dependencies") }
     static var logging: Self { .product(name: "Logging", package: "swift-log") }
@@ -66,6 +67,7 @@ let package = Package(
         .package(url: "https://github.com/coenttb/pointfree-web", branch: "main"),
         .package(url: "https://github.com/coenttb/swift-web-standards", branch: "main"),
         .package(url: "https://github.com/coenttb/swift-emailaddress-type", branch: "main"),
+        .package(url: "https://github.com/coenttb/swift-domain-type", branch: "main"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.1.5"),
         .package(url: "https://github.com/pointfreeco/swift-url-routing", from: "0.6.0"),
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", branch: "main")
@@ -132,6 +134,7 @@ let package = Package(
                 .swiftDate,
                 .swiftHtml,
                 .emailAddress,
+                .domain,
                 .favicon,
                 .sitemap,
                 .urlFormCoding,

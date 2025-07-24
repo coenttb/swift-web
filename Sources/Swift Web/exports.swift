@@ -6,6 +6,7 @@
 //
 
 @_exported import Date
+@_exported import Domain
 @_exported import Dependencies
 @_exported import Either
 @_exported import EmailAddress
