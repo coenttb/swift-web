@@ -1,5 +1,5 @@
 {
-  "originHash" : "aca197843574a8ee46e3a12c235bdb0dcb9cf78241d91c1edeff31ad183c42fe",
+  "originHash" : "0bf95d36e9d38aa93e61153fcb0f00295772e7873e9f53a6e762137811d42269",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -16,16 +16,7 @@
       "location" : "https://github.com/coenttb/pointfree-html.git",
       "state" : {
         "branch" : "main",
-        "revision" : "0600634f64adb80324101d7577203cd31d6308d9"
-      }
-    },
-    {
-      "identity" : "pointfree-web",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/coenttb/pointfree-web",
-      "state" : {
-        "branch" : "main",
-        "revision" : "c77bb14402a3112e9c4cca631ad2f8f320c1d4a5"
+        "revision" : "0867cb15127d9db0fe54e53d5a47fb5438d84710"
       }
     },
     {
@@ -142,7 +133,7 @@
       "location" : "https://github.com/coenttb/swift-html-types",
       "state" : {
         "branch" : "main",
-        "revision" : "9b22f5bf4d6a591234c546902e2489076935f847"
+        "revision" : "984d22a98253c9b7d110b0c478fdee2c9bef5210"
       }
     },
     {
@@ -152,15 +143,6 @@
       "state" : {
         "branch" : "main",
         "revision" : "3432cb81164dd3d69a75d0d63205be5fbae2c34b"
-      }
-    },
-    {
-      "identity" : "swift-prelude",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-prelude.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "a21df6f5932673f3f20d7f0ca1f8e0a7c887b3c2"
       }
     },
     {
@@ -179,6 +161,33 @@
       "state" : {
         "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
         "version" : "601.0.1"
+      }
+    },
+    {
+      "identity" : "swift-url-form-coding",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/coenttb/swift-url-form-coding",
+      "state" : {
+        "revision" : "862a7c05f18866fecd44d16b95c8a36d22ca8645",
+        "version" : "0.0.1"
+      }
+    },
+    {
+      "identity" : "swift-url-form-coding-url-routing",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/coenttb/swift-url-form-coding-url-routing",
+      "state" : {
+        "revision" : "538845d5e770ce033a4ae51f2a93492f2af00e2f",
+        "version" : "0.0.1"
+      }
+    },
+    {
+      "identity" : "swift-url-multipart-form-coding-url-routing",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/coenttb/swift-url-multipart-form-coding-url-routing",
+      "state" : {
+        "revision" : "40e6d1a88a9a3bcb2a353ddfd581cf49e23b87aa",
+        "version" : "0.0.1"
       }
     },
     {
